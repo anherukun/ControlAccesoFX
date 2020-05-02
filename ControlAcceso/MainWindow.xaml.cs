@@ -237,7 +237,7 @@ namespace ControlAcceso
 
         private async void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            // ABRIR OPCIONES
+            // ABRIR OPCIONESs
             List<Departamento> ls = await Task.Run(() =>
             {
                 return Departamento.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary("SELECT * FROM DEPARTAMENTOS ORDER BY DEPARTAMENTOS.[CLAVE] ASC"));
