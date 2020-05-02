@@ -131,4 +131,7 @@ namespace SharedCode
     // Iniciar la aplicacion al arrancar windows
     // https://www.codeproject.com/Questions/201370/starting-the-wpf-application-when-system-starts
     // https://docs.microsoft.com/en-us/windows/win32/setupapi/run-and-runonce-registry-keys?redirectedfrom=MSDN
+
+    // Iconos
+    // https://www.flaticon.com/packs/graphic-design-152
 }

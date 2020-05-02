@@ -220,6 +220,7 @@ namespace ControlAcceso
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             //NUEVA ENTRADA
+            lst_registro.SelectedIndex = -1;
             List<Personal> ls = await Task.Run(() =>
             {
                 return Personal.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary("SELECT * FROM PERSONAL ORDER BY PERSONAL.[FICHA] ASC;"));
@@ -271,7 +272,11 @@ namespace ControlAcceso
 
         private void lst_registro_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            btn_salida.IsEnabled = true;
+            if (lst_registro.SelectedIndex > -1)
+                if (long.Parse(registros[lst_registro.SelectedIndex].HSalida) > 0)
+                    btn_salida.IsEnabled = false;
+                else
+                    btn_salida.IsEnabled = true;
         }
     }
 }
