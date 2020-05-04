@@ -12,7 +12,7 @@ using System.Windows;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Angel Jimenez Reyes")]
 [assembly: AssemblyProduct("Control Accesos")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCopyright("Angel Jimenez Reyes")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
