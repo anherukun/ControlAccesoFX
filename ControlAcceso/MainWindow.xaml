@@ -50,6 +50,7 @@
                         <GridViewColumn DisplayMemberBinding="{Binding Fecha}" Header="Fecha"/>
                         <GridViewColumn DisplayMemberBinding="{Binding Entrada}" Header="Entrada"/>
                         <GridViewColumn DisplayMemberBinding="{Binding Salida}" Header="Salida"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding Horas}" Header="Horas"/>
                     </GridView>
                 </ListView.View>
             </ListView>

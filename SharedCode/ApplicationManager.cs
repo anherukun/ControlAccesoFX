@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -13,6 +14,7 @@ namespace SharedCode
         public class GlobalSettings
         {
             public int ClaveDepto { get; set; }
+            public int LogLimit { get; set; } = 15;
             public bool BootOnStartup { get; set; }
 
             public static byte[] ToBytes(GlobalSettings globalSettings)
@@ -97,6 +99,44 @@ namespace SharedCode
             {
                 MessageBox.Show(ex.Message);
                 return null;
+            }
+        }
+
+        static public bool WriteRegistryKey(string keyPath, string keyName, object value)
+        {
+            try
+            {
+                RegistryKey registryKey = Registry.CurrentUser;
+                RegistryKey path = registryKey.OpenSubKey(keyPath, true);
+                
+                path.SetValue(keyName, value);
+
+                Console.WriteLine("Application: RegistryKey Value Created Successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
+            }
+        }
+
+        static public bool DeleteRegistryKey(string keyPath, string keyName)
+        {
+            try
+            {
+                RegistryKey registryKey = Registry.CurrentUser;
+                RegistryKey path = registryKey.OpenSubKey(keyPath, true);
+                    
+                path.DeleteValue(keyName);
+
+                Console.WriteLine("Application: RegistryKey Value Deleted Successfully");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+                return false;
             }
         }
 

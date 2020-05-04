@@ -32,6 +32,7 @@ namespace ControlAcceso
             public string Fecha { get; set; }
             public string Entrada { get; set; }
             public string Salida { get; set; }
+            public string Horas { get; set; }
         }
 
         private List<CARegistro> registros;
@@ -40,6 +41,9 @@ namespace ControlAcceso
         public MainWindow()
         {
             InitializeComponent();
+            
+            //MessageBox.Show(System.Reflection.Assembly.GetEntryAssembly().Location);
+
             if (ApplicationManager.FileExistOnAppdata("Settings.data"))
             {
                 RefreshGlobalSettings();
@@ -128,7 +132,7 @@ namespace ControlAcceso
         private List<CARegistro> RefreshCARegistro()
         {
             Console.WriteLine("Application: RefreshCARegistro Started");
-            return CARegistro.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary($"SELECT TOP 50 UID, FICHA, CLAVEDEPTO, FECHA, HENTRADA, HSALIDA FROM REGISTRO WHERE REGISTRO.[CLAVEDEPTO] LIKE {globalSettings.ClaveDepto} ORDER BY REGISTRO.[UID] ASC"));
+            return CARegistro.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary($"SELECT TOP {globalSettings.LogLimit} UID, FICHA, CLAVEDEPTO, FECHA, HENTRADA, HSALIDA FROM REGISTRO WHERE REGISTRO.[CLAVEDEPTO] LIKE {globalSettings.ClaveDepto} ORDER BY REGISTRO.[UID] ASC"));
         }
 
         private async void RefreshRegLog()
@@ -164,7 +168,17 @@ namespace ControlAcceso
                     };
 
                     if (long.Parse(item.HSalida) != 0)
+                    {
                         binding.Salida = $"{new DateTime(long.Parse(item.HSalida)).ToShortTimeString()}";
+
+                        string difHour = $"{new DateTime(long.Parse(item.HSalida)).Subtract(new DateTime(long.Parse(item.HEntrada))).Hours}", difMin = $"{new DateTime(long.Parse(item.HSalida)).Subtract(new DateTime(long.Parse(item.HEntrada))).Minutes}";
+                        if (difHour.Length == 1)
+                            difHour = $"0{new DateTime(long.Parse(item.HSalida)).Subtract(new DateTime(long.Parse(item.HEntrada))).Hours}";
+                        if (difMin.Length == 1)
+                            difMin = $"0{new DateTime(long.Parse(item.HSalida)).Subtract(new DateTime(long.Parse(item.HEntrada))).Minutes}";
+
+                        binding.Horas = $"{difHour}:{difMin}";
+                    }
 
                     bindings.Add(binding);
                 }

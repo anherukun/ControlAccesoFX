@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,6 +29,9 @@ namespace ControlAcceso.Layouts
         {
             InitializeComponent();
             listaDepartamento = list as List<Departamento>;
+            
+            txt_registrosmax.Text = "15";
+
             if (ApplicationManager.FileExistOnAppdata("Settings.data"))
                 globalSettings = ApplicationManager.GlobalSettings.FromBytes(ApplicationManager.ReadBinaryFileOnAppdata("Settings.data"));
             else
@@ -45,7 +49,12 @@ namespace ControlAcceso.Layouts
                     cmb_departamento.SelectedIndex = i;
 
             check_bootStartup.IsChecked = globalSettings.BootOnStartup;
+            txt_registrosmax.Text = globalSettings.LogLimit.ToString();
         }
+
+        private bool BootStartupCheck() => check_bootStartup.IsChecked.Value ? 
+            ApplicationManager.WriteRegistryKey(@"Software\Microsoft\Windows\CurrentVersion\Run", "ControlAcceso", System.Reflection.Assembly.GetEntryAssembly().Location) :
+            ApplicationManager.DeleteRegistryKey(@"Software\Microsoft\Windows\CurrentVersion\Run", "ControlAcceso");
 
         public bool SavedByUser() => saved;
 
@@ -56,14 +65,36 @@ namespace ControlAcceso.Layouts
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            globalSettings.ClaveDepto = listaDepartamento[cmb_departamento.SelectedIndex].Clave;
-            globalSettings.BootOnStartup = check_bootStartup.IsChecked.Value;
+            if (globalSettings.BootOnStartup != check_bootStartup.IsChecked)
+            {
+                if (BootStartupCheck())
+                {
+                    globalSettings.ClaveDepto = listaDepartamento[cmb_departamento.SelectedIndex].Clave;
+                    globalSettings.BootOnStartup = check_bootStartup.IsChecked.Value;
+                    globalSettings.LogLimit = int.Parse(txt_registrosmax.Text);
 
-            ApplicationManager.WriteBinaryFileOnAppdata(ApplicationManager.GlobalSettings.ToBytes(globalSettings), "Settings.data");
+                    ApplicationManager.WriteBinaryFileOnAppdata(ApplicationManager.GlobalSettings.ToBytes(globalSettings), "Settings.data");
+                    saved = true;
+                    this.Close();
+                }
+            }
 
-            saved = true;
+            else if (globalSettings.BootOnStartup == check_bootStartup.IsChecked)
+            {
+                globalSettings.ClaveDepto = listaDepartamento[cmb_departamento.SelectedIndex].Clave;
+                globalSettings.BootOnStartup = check_bootStartup.IsChecked.Value;
+                globalSettings.LogLimit = int.Parse(txt_registrosmax.Text);
 
-            this.Close();
+                ApplicationManager.WriteBinaryFileOnAppdata(ApplicationManager.GlobalSettings.ToBytes(globalSettings), "Settings.data");
+                saved = true;
+                this.Close();
+            }
+        }
+
+        private void NumberValidation(object sender, TextCompositionEventArgs e)
+        {
+            Regex regex = new Regex("[^0-9]+");
+            e.Handled = regex.IsMatch(e.Text);
         }
     }
 }
