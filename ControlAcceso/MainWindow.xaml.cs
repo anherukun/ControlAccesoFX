@@ -132,7 +132,7 @@ namespace ControlAcceso
         private List<CARegistro> RefreshCARegistro()
         {
             Console.WriteLine("Application: RefreshCARegistro Started");
-            return CARegistro.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary($"SELECT TOP {globalSettings.LogLimit} UID, FICHA, CLAVEDEPTO, FECHA, HENTRADA, HSALIDA FROM REGISTRO WHERE REGISTRO.[CLAVEDEPTO] LIKE {globalSettings.ClaveDepto} ORDER BY REGISTRO.[UID] ASC"));
+            return CARegistro.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary($"SELECT TOP {globalSettings.LogLimit} UID, FICHA, CLAVEDEPTO, FECHA, HENTRADA, HSALIDA FROM REGISTRO WHERE REGISTRO.[CLAVEDEPTO] LIKE {globalSettings.ClaveDepto} ORDER BY REGISTRO.[UID] DESC"));
         }
 
         private async void RefreshRegLog()
