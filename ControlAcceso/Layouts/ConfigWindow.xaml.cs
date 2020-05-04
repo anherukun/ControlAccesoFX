@@ -38,11 +38,14 @@ namespace ControlAcceso.Layouts
                 globalSettings = new ApplicationManager.GlobalSettings();
         }
 
-        new private void UpdateLayout()
+        new private async void UpdateLayout()
         {
-            if (listaDepartamento != null)
-                foreach (Departamento departamento in listaDepartamento)
-                    cmb_departamento.Items.Add($"{departamento.Clave}\t|  {departamento.Nombre}");
+            await Task.Run(() =>
+            {
+                if (listaDepartamento != null)
+                    foreach (Departamento departamento in listaDepartamento)
+                        Application.Current.Dispatcher.Invoke(new Action(() => { cmb_departamento.Items.Add($"{departamento.Clave}\t|  {departamento.Nombre}"); }));
+            });
 
             for (int i = 0; i < listaDepartamento.Count; i++)
                 if (listaDepartamento[i].Clave == globalSettings.ClaveDepto)

@@ -37,18 +37,20 @@ namespace ControlAcceso.Layouts
             this.message = message;
         }
 
-        new private void UpdateLayout()
+        new private async void UpdateLayout()
         {
             txt_mensaje.Text = message;
 
-
-            if (listaPersonal != null)
-                foreach (Personal personal in listaPersonal)
-                    cmb_lista.Items.Add($"{personal.Ficha}\t|  {personal.Nombre}");
-
-            else if (listaDepartamento != null)
-                foreach (Departamento departamento in listaDepartamento)
-                    cmb_lista.Items.Add($"{departamento.Clave}\t|  {departamento.Nombre}");
+            await Task.Run(() =>
+            {
+                if (listaPersonal != null)
+                    foreach (Personal personal in listaPersonal)
+                        Application.Current.Dispatcher.Invoke(new Action(() => { cmb_lista.Items.Add($"{personal.Ficha}\t|  {personal.Nombre}"); }));
+                
+                else if (listaDepartamento != null)
+                    foreach (Departamento departamento in listaDepartamento)
+                        Application.Current.Dispatcher.Invoke(new Action(() => { cmb_lista.Items.Add($"{departamento.Clave}\t|  {departamento.Nombre}"); }));
+            });
         }
 
         public int RetriveSelection() => selectedIndex > -1 ? selectedIndex : -1;

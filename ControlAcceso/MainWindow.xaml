@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ControlAcceso"
         mc:Ignorable="d"
-        Title="MainWindow" Height="625" Width="500" ResizeMode="NoResize" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen">
+        Title="Accesos" Height="625" Width="500" ResizeMode="NoResize" Loaded="Window_Loaded" WindowStartupLocation="CenterScreen">
     <Grid>
         <StackPanel>
             <ProgressBar x:Name="progressbar" Height="8" IsIndeterminate="True"/>
@@ -50,7 +50,6 @@
                         <GridViewColumn DisplayMemberBinding="{Binding Fecha}" Header="Fecha"/>
                         <GridViewColumn DisplayMemberBinding="{Binding Entrada}" Header="Entrada"/>
                         <GridViewColumn DisplayMemberBinding="{Binding Salida}" Header="Salida"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Horas}" Header="Horas"/>
                     </GridView>
                 </ListView.View>
             </ListView>
