@@ -45,6 +45,7 @@ DATABASE_PATH_DEBUG, F:\angel\Escritorio\HomeOffice\Proyecto ControlAccesos Chec
 ``` csharp 
 Dictionary<string, string>
 ```
+
 ----
 [ReadBinaryFileOnAppdata(string filename)]()
 
@@ -70,6 +71,42 @@ El archivo que se esta leyendo con este metodo es una clase serializada y export
 **Retorno**
 ``` csharp
 byte[]
+```
+
+----
+[WriteBinaryFileOnAppdata(byte[] bytes, string filename)]()
+
+Escribe un arreglo de bytes en un archivo de la ruta preestablecida: `C:\Users\%USERNAME%\AppData\Local\ControlAcceso`
+
+``` csharp
+static public bool WriteBinaryFileOnAppdata(byte[] bytes, string filename)
+{
+    if (!Directory.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\{filename}"))
+    {
+        Directory.CreateDirectory($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso");
+    }
+
+    try
+    {
+        using (FileStream stream = File.OpenWrite($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\{filename}"))
+        {
+            stream.Write(bytes, 0, bytes.Length);
+            return true;
+        }
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show(ex.Message);
+        return false;
+    }
+}
+```
+
+**Retorno**
+``` csharp
+true // Si fue escrito el archivo correctamente
+
+flase // Cuando ocurre un error inesperado
 ```
 
 # Ver tambien
