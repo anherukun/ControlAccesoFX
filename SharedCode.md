@@ -10,5 +10,5 @@ using SharedCode.Metadata;
 ```
 
 # Vea también
-- [Clase ApplicationManager]()
+- [Clase ApplicationManager](/SharedCode/SharedCode.ApplicationManager)
 - [Clase DatabaseManager]()
