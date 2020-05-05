@@ -11,5 +11,25 @@ Proporcionando en su mayoría métodos estáticos para:
 # Metodos
 
 
+|Retorno|Método|Descripción|
+|--|--|--|
+| `Dictionary<string, string>` | `RetriveFromSourcesFile()` | Lee el archivo sources.data de la carpeta donde se encuentre el ejecutable del programa, devolviendo un diccionario de cadenas con los valores que contenga el archivo |
+|  |  |  |
+|  |  |  |
+|  |  |  |
+
+
+
+----
+[RetriveFromSourcesFile()]()
+
+Lee el archivo sources.data de la carpeta donde se encuentre el ejecutable del programa, devolviendo un diccionario de cadenas con los valores que contenga el archivo
+
+
+``` csharp
+using SharedCode;
+using SharedCode.Metadata;
+```
+
 # Ver tambien
 - [SharedCode](/SharedCode)
