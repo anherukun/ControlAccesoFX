@@ -108,6 +108,28 @@ true // Si fue escrito el archivo correctamente
 
 flase // Cuando ocurre un error inesperado
 ```
+----
+[FileExistOnAppdata(string filename)]()
 
-# Ver tambien
+Verifica que exista un archivo de la ruta preestablecida:
+`C:\Users\%USERNAME%\AppData\Local\ControlAcceso`
+
+``` csharp
+static public bool FileExistOnAppdata(string filename) => File.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/ControlAcceso/{filename}") ? true : false;
+// Es lo mismo que escribir esto:
+// { 
+//     if (File.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/ControlAcceso/{filename}"))
+//     {
+//         return true;
+//     }
+//     return false;
+// }
+```
+
+``` csharp
+bool
+```
+
+
+# Ver también
 - [SharedCode](/SharedCode)
