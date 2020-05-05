@@ -107,7 +107,9 @@ namespace ControlAcceso
             if (second.Length == 1)
                 second = $"0{dateTime.Second}";
 
-            clockstring = $"{dateTime.Day} {month} [{hour}:{minute}:{second}]";
+
+            // <GridViewColumn DisplayMemberBinding = "{Binding Horas}" Header = "Horas"/>
+               clockstring = $"{dateTime.Day} {month} [{hour}:{minute}:{second}]";
             //Application.Current.Dispatcher.Invoke(new Action(() => { txt_reloj.Text = clockstring; }));
             txt_reloj.Text = clockstring;
         }

@@ -8,6 +8,9 @@ using System.Windows;
 
 namespace SharedCode
 {
+    /// <summary>
+    /// Clase con multiples metodos que ejecutan diversas tareas que ayudan al funcionamiento del sistema
+    /// </summary>
     class ApplicationManager
     {
         [Serializable()]
@@ -17,23 +20,38 @@ namespace SharedCode
             public int LogLimit { get; set; } = 15;
             public bool BootOnStartup { get; set; }
 
+            /// <summary>Serializa un objeto de clase <see cref="GlobalSettings"/> a un arreglo de bytes</summary>
+            /// <param name="globalSettings">Objeto de clase <see cref="GlobalSettings"/></param>
+            /// <returns>Secuencia de un arreglo de bytes</returns>
             public static byte[] ToBytes(GlobalSettings globalSettings)
             {
+                // Verifica que globalSettings no sea un valor nulo, y en caso de que se haya pasado como un objeto nulo
+                // se terminara el proceso retornando un null
                 if (globalSettings == null)
                     return null;
 
+                // Se inicializan un objeto de tipo BinaryFormatter
+                // Se serializa el objeto GlobalSettings
+                // Retornandolo a un arreglo de bytes
                 BinaryFormatter formatter = new BinaryFormatter();
                 MemoryStream stream = new MemoryStream();
                 formatter.Serialize(stream, globalSettings);
 
                 return stream.ToArray();
             }
+            /// <summary>Deserializa un arreglo de bytes de un objeto de clase <see cref="GlobalSettings"/></summary>
+            /// <param name="bytes">Objeto <see cref="GlobalSettings"/> serializado en un arreglo de bytes</param>
+            /// <returns>Objeto <see cref="GlobalSettings"/></returns>
             public static GlobalSettings FromBytes(byte[] bytes)
             {
+                // Se inicializan un objeto de tipo BinaryFormatter
                 MemoryStream stream = new MemoryStream();
                 BinaryFormatter formatter = new BinaryFormatter();
+                // Mantiene los bytes en un buffer de memoria
                 stream.Write(bytes, 0, bytes.Length);
+                // Orgaliza la secuencia de bytes
                 stream.Seek(0, SeekOrigin.Begin);
+                // Deserealiza los el buffer como un objeto explicito de GlobalSettings
                 GlobalSettings globalSettings = (GlobalSettings)formatter.Deserialize(stream);
 
                 return globalSettings;
@@ -49,32 +67,40 @@ namespace SharedCode
             GC.WaitForFullGCComplete();
         }
 
-        /// <summary>Verifica que exista el archivo de configuracion en la ruta preestablecida: <c>C:\Users\%USERNAME%\AppData\Local\ControlAcceso</c></summary>
+        /// <summary>Verifica de que exista el archivo de configuracion en la ruta preestablecida: <c>C:\Users\%USERNAME%\AppData\Local\ControlAcceso</c></summary>
+        /// <param name="filename">Nombre del archivo con extension</param>
         /// <example><code>
-        /// if (Configuracion.ConfigFileExist)
+        /// if (ApplicationManager.FileExistOnAppdata("Settings.data"))
         /// {
         ///     /// Do something...
         /// }
         /// ...</code></example>
-        static public bool FileExistOnAppdata(string filename)
-        {
-            if (File.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/ControlAcceso/{filename}"))
-            {
-                return true;
-            }
-            return false;
-        }
+        static public bool FileExistOnAppdata(string filename) => File.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/ControlAcceso/{filename}") ? true : false;
+        // Es lo mismo que escribir esto:
+        // { 
+        //     if (File.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}/ControlAcceso/{filename}"))
+        //     {
+        //         return true;
+        //     }
+        //     return false;
+        // }
 
+        /// <summary>Escribe un arreglo de bytes en la ruta preestablecida: <c>C:\Users\%USERNAME%\AppData\Local\ControlAcceso</c></summary>
+        /// <param name="bytes">Objeto serializado en un arreglo de bytes</param>
+        /// <param name="filename">Nombre del archivo con extension</param>
+        /// <returns><see cref="true"/> Si el archivo pudo escribirse correctamente. <see cref="false"/> Si ocurrio alguna excepcion, mostrara un mensaje en pantalla con el error</returns>
         static public bool WriteBinaryFileOnAppdata(byte[] bytes, string filename)
         {
+            // Se comprueba de que exista la rita donde se escribira el archivo, cuando no la encuentre, se encargara de crearla
             if (!Directory.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\{filename}"))
             {
                 Directory.CreateDirectory($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso");
             }
 
-
             try
             {
+                // Haciendo el uso de FileStream creara el archivo con el arreglo de bytes en la ruta de LocalApplicationData
+                // Y cuando concluya el proceso ratornara un True
                 using (FileStream stream = File.OpenWrite($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\{filename}"))
                 {
                     stream.Write(bytes, 0, bytes.Length);
@@ -84,65 +110,85 @@ namespace SharedCode
             }
             catch (Exception ex)
             {
+                // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
                 MessageBox.Show(ex.Message);
                 return false;
             }
         }
 
+        /// <summary>Lee un los bytes de un archivo binario ubicado en la ruta preestablecida: <c>C:\Users\%USERNAME%\AppData\Local\ControlAcceso</c></summary>
+        /// <param name="filename">Nombre del archivo con extension</param>
+        /// <returns><see cref="object"/> Serializado en un arreglo de bytes</returns>
         static public byte[] ReadBinaryFileOnAppdata(string filename)
         {
             try
             {
+                // Retorna un arreglo de bytes leidos del archivo
                 return File.ReadAllBytes($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\{filename}");
             }
             catch (Exception ex)
             {
+                // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
                 MessageBox.Show(ex.Message);
                 return null;
             }
         }
 
-        static public bool WriteRegistryKey(string keyPath, string keyName, object value)
+        /// <summary>Escribe un valor en una llave del registro de Windows</summary>
+        /// <param name="keyPath">Direccion de la llave de registro</param>
+        /// <param name="valueName">Nombre del valor</param>
+        /// <param name="value">Objeto que se guardara en el valor de registro</param>
+        /// <returns><see cref="true"/>: Si el valor fue escrito correctamente. <see cref="false"/>: Si ocurrio alguna excepcion, mostrara un mensaje en pantalla con el error</returns>
+        static public bool WriteRegistryKey(string keyPath, string valueName, object value)
         {
             try
             {
+                // Se posiciona en modo escritura en la llave de registro
                 RegistryKey registryKey = Registry.CurrentUser;
                 RegistryKey path = registryKey.OpenSubKey(keyPath, true);
                 
-                path.SetValue(keyName, value);
+                // Escribe el nombre del nuevo valor y el valor en la llave del registro
+                // Retorna True para finalizar el proceso
+                path.SetValue(valueName, value);
 
                 Console.WriteLine("Application: RegistryKey Value Created Successfully");
                 return true;
             }
             catch (Exception ex)
             {
+                // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
                 MessageBox.Show(ex.Message);
                 return false;
             }
         }
-
-        static public bool DeleteRegistryKey(string keyPath, string keyName)
+        /// <summary>Elimina algun valor de una llave del registro de Windows</summary>
+        /// <param name="keyPath">Ruta de la llave del regisro, esta ruta estara anidada en la raiz: HKEY_CURRENT_USER\</param>
+        /// <param name="valueName">Nombre del valor</param>
+        /// <returns><see cref="true"/>: Si el valor fue eliminado correctamente. <see cref="false"/>: Si ocurrio alguna excepcion, mostrara un mensaje en pantalla con el error</returns>
+        static public bool DeleteRegistryKey(string keyPath, string valueName)
         {
             try
             {
+                // Se posiciona en modo escritura en la llave de registro
                 RegistryKey registryKey = Registry.CurrentUser;
                 RegistryKey path = registryKey.OpenSubKey(keyPath, true);
-                    
-                path.DeleteValue(keyName);
+
+                // Elimina el valor en la llave de registro
+                // Retorna True para finalizar el proceso
+                path.DeleteValue(valueName);
 
                 Console.WriteLine("Application: RegistryKey Value Deleted Successfully");
                 return true;
             }
             catch (Exception ex)
             {
+                // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
                 MessageBox.Show(ex.Message);
                 return false;
             }
         }
 
-        /// <summary>
-        /// Extrae valores como rutas de acceso del requeridas por la aplicacion
-        /// </summary>
+        /// <summary>Lee el archivo Sources.data ubicado en la carpeta del ejecutable de la aplicacion</summary>
         /// <returns>Diccionario con los los valores extraidos del archivo sources.data</returns>
         public static Dictionary<string, string> RetriveFromSourcesFile()
         {

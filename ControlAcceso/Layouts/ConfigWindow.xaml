@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:ControlAcceso.Layouts"
         mc:Ignorable="d"
-        Title="ConfigWindow" Height="300" Width="400" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Loaded="Window_Loaded" ShowInTaskbar="False">
+        Title="Configuraciones" Height="300" Width="400" ResizeMode="NoResize" WindowStartupLocation="CenterOwner" Loaded="Window_Loaded" ShowInTaskbar="False">
     <Grid>
         <StackPanel Margin="8">
             <Grid>
