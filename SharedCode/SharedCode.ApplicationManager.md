@@ -45,6 +45,32 @@ DATABASE_PATH_DEBUG, F:\angel\Escritorio\HomeOffice\Proyecto ControlAccesos Chec
 ``` csharp 
 Dictionary<string, string>
 ```
+----
+[ReadBinaryFileOnAppdata(string filename)]()
+
+Lee un archivo binario alojado en la carpeta %APPDATA% del programa, retornando un arreglo de bytes
+
+``` csharp 
+static public byte[] ReadBinaryFileOnAppdata(string filename)
+{
+    try
+    {
+        return File.ReadAllBytes($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\{filename}");
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show(ex.Message);
+        return null;
+    }
+}
+```
+
+El archivo que se esta leyendo con este metodo es una clase serializada y exportada en la carpeta `%APPDATA%` del programa
+
+**Retorno**
+``` csharp
+byte[]
+```
 
 # Ver tambien
 - [SharedCode](/SharedCode)
