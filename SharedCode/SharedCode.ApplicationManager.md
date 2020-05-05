@@ -108,6 +108,7 @@ true // Si fue escrito el archivo correctamente
 
 flase // Cuando ocurre un error inesperado
 ```
+
 ----
 [FileExistOnAppdata(string filename)]()
 
@@ -130,6 +131,85 @@ static public bool FileExistOnAppdata(string filename) => File.Exists($"{Environ
 bool
 ```
 
+----
+[WriteRegistryKey(string keyPath, string valueName, object value)]()
 
+Escribe un valor en una llave de registro de Windows
+
+``` csharp
+static public bool WriteRegistryKey(string keyPath, string valueName, object value)
+{
+    try
+    {
+        RegistryKey registryKey = Registry.CurrentUser;
+        RegistryKey path = registryKey.OpenSubKey(keyPath, true);
+        path.SetValue(valueName, value);
+        
+        Console.WriteLine("Application: RegistryKey Value Created Successfully");
+        return true;
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show(ex.Message);
+        return false;
+    }
+}
+```
+
+**Retorno**
+``` csharp
+true // Si fue escrito el archivo correctamente
+
+flase // Cuando ocurre un error inesperado
+```
+
+----
+[DeleteRegistryKey(string keyPath, string valueName)]()
+
+Elimina un valor un una llave de registro de 
+
+``` csharp
+static public bool DeleteRegistryKey(string keyPath, string valueName)
+{
+    try
+    {
+        RegistryKey registryKey = Registry.CurrentUser;
+        RegistryKey path = registryKey.OpenSubKey(keyPath, true);
+        
+        path.DeleteValue(valueName);
+        Console.WriteLine("Application: RegistryKey Value Deleted Successfully");
+        return true;
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show(ex.Message);
+        return false;
+    }
+}
+```
+
+**Retorno**
+``` csharp
+true // Si fue escrito el archivo correctamente
+
+flase // Cuando ocurre un error inesperado
+```
+
+----
+[InitGB()]()
+
+Ejecuta el recolector de basura para liberar memoria que ya no se esta utilizando
+
+``` csharp
+static public void InitGB()
+{
+    GC.Collect();
+    GC.WaitForPendingFinalizers();
+    GC.Collect();
+    GC.WaitForFullGCComplete();
+}
+```
+
+----
 # Ver también
 - [SharedCode](/SharedCode)
