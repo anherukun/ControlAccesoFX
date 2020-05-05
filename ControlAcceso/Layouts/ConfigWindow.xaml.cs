@@ -17,7 +17,7 @@ using System.Windows.Shapes;
 
 namespace ControlAcceso.Layouts
 {
-    /// <summary>
+    /// <summary> /
     /// Lógica de interacción para ConfigWindow.xaml
     /// </summary>
     public partial class ConfigWindow : Window
