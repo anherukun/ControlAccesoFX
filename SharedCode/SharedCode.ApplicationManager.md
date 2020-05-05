@@ -9,17 +9,6 @@ Proporcionando en su mayoría métodos estáticos para:
 [[_TOC_]]
 
 # Metodos
-
-
-|Retorno|Método|Descripción|
-|--|--|--|
-| `Dictionary<string, string>` | `RetriveFromSourcesFile()` | Lee el archivo sources.data de la carpeta donde se encuentre el ejecutable del programa, devolviendo un diccionario de cadenas con los valores que contenga el archivo |
-|  |  |  |
-|  |  |  |
-|  |  |  |
-
-
-
 ----
 [RetriveFromSourcesFile()]()
 
@@ -27,8 +16,34 @@ Lee el archivo sources.data de la carpeta donde se encuentre el ejecutable del p
 
 
 ``` csharp
-using SharedCode;
-using SharedCode.Metadata;
+public static Dictionary<string, string> RetriveFromSourcesFile()
+{
+    Dictionary<string, string> result = new Dictionary<string, string>();
+    try
+    {
+        string[] lines = System.IO.File.ReadAllLines($"{Environment.CurrentDirectory}/sources.data");
+        foreach (string s in lines)
+        {
+            result.Add(s.Split(',')[0].Trim(), s.Split(',')[1].Trim());
+        }
+        return result;
+    }
+    catch (Exception ex)
+    {
+        MessageBox.Show(ex.Message);
+        return null;
+    }
+}
+```
+El contenido del archivo ``sources.data`` son lineas con el nombre de un indice y el valor que toma ese indice, separado entre comas y cada linea en el archivo es un valor. Ejemplo:
+
+```
+DATABASE_PATH, F:\angel\Escritorio\HomeOffice\Proyecto ControlAccesos Checador\BaseControlAcceso_bkp.accdb
+DATABASE_PATH_DEBUG, F:\angel\Escritorio\HomeOffice\Proyecto ControlAccesos Checador\BaseControlAcceso.accdb
+```
+**Retorno**
+``` csharp 
+Dictionary<string, string>
 ```
 
 # Ver tambien
