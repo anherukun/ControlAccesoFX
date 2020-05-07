@@ -294,5 +294,15 @@ namespace ControlAcceso
                 else
                     btn_salida.IsEnabled = true;
         }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            // GENERAR INFORME
+            DateInput input = new DateInput("Selecciona la fecha para generar el informe");
+            input.Owner = this;
+            input.ShowDialog();
+
+
+        }
     }
 }

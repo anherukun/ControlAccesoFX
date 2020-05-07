@@ -15,7 +15,11 @@ namespace SharedCode
 
             OleDbConnectionStringBuilder builder = new OleDbConnectionStringBuilder();
             builder.Provider = $"{values["DATABASE_PROVIDER"]}";
+#if DEBUG
             builder.DataSource = $"{values["DATABASE_PATH_DEBUG"]}";
+#else
+            builder.DataSource = $"{values["DATABASE_PATH"]}";
+#endif
             ConnectionString = builder.ConnectionString;
         }
 
