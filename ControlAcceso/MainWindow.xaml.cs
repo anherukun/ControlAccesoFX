@@ -295,14 +295,20 @@ namespace ControlAcceso
                     btn_salida.IsEnabled = true;
         }
 
-        private void Button_Click_2(object sender, RoutedEventArgs e)
+        private async void Button_Click_2(object sender, RoutedEventArgs e)
         {
             // GENERAR INFORME
             DateInput input = new DateInput("Selecciona la fecha para generar el informe");
             input.Owner = this;
             input.ShowDialog();
 
+            List<CARegistro> r = new List<CARegistro>();
+            await Task.Run(() => 
+            {
+                r = CARegistro.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary($"SELECT * FROM REGISTRO WHERE REGISTRO.[FECHA] LIKE \"{input.RetriveSelection().ToShortDateString()}\" AND REGISTRO.[CLAVEDEPTO] LIKE {this.departamento.Clave} ORDER BY REGISTRO.[UID] DESC"));
+            });
 
+            CARegistro.PrepareDataToTemplete(this.departamento, input.RetriveSelection(), r);
         }
     }
 }
