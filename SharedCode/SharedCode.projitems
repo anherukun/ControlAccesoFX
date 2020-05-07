@@ -11,6 +11,7 @@
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)ApplicationManager.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)DatabaseManager.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)HTMLHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metadata\CARegistro.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metadata\Departamento.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Metadata\Personal.cs" />
