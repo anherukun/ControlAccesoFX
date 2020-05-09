@@ -61,7 +61,7 @@ public static GlobalSettings FromBytes(byte[] bytes)
 
 **Retorno**
 ``` csharp 
-byte[]
+GlobalSettings
 ```
 
 # Ver también
