@@ -111,7 +111,7 @@ namespace SharedCode
             catch (Exception ex)
             {
                 // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return false;
             }
         }
@@ -129,7 +129,7 @@ namespace SharedCode
             catch (Exception ex)
             {
                 // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return null;
             }
         }
@@ -194,7 +194,7 @@ namespace SharedCode
             catch (Exception ex)
             {
                 // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return false;
             }
         }
@@ -220,7 +220,7 @@ namespace SharedCode
             catch (Exception ex)
             {
                 // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return false;
             }
         }
@@ -245,7 +245,7 @@ namespace SharedCode
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return null;
             }
         }

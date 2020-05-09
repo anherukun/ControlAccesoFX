@@ -41,7 +41,9 @@ namespace SharedCode
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    connection.Close();
+
+                    ApplicationManager.ExceptionHandler(ex);
                     return false;
                 }
             }
@@ -85,7 +87,7 @@ namespace SharedCode
                 {
                     connection.Close();
 
-                    MessageBox.Show(ex.Message);
+                    ApplicationManager.ExceptionHandler(ex);
                     return null;
                 }
             }
@@ -135,7 +137,7 @@ namespace SharedCode
                 {
                     connection.Close();
 
-                    MessageBox.Show(ex.Message);
+                    ApplicationManager.ExceptionHandler(ex);
                     return null;
                 }
             }

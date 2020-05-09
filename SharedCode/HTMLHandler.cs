@@ -29,7 +29,6 @@ namespace SharedCode
             }
             catch (Exception ex)
             {
-
                 ApplicationManager.ExceptionHandler(ex);
             }
         }
