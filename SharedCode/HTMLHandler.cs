@@ -15,15 +15,23 @@ namespace SharedCode
         /// <returns>HTML generado con los nuevos valores del diccionario</returns>
         public static void GenerateHTML(string HTMLSource, Dictionary<string, string> values)
         {
-            string result = File.ReadAllText(HTMLSource);
-
-            foreach (var valuePair in values)
+            try
             {
-                // Remplazara el nombre de la llave del par de valores con el nombre clave correspondiente en el documento html
-                result = result.Replace(valuePair.Key, valuePair.Value);
-            }
+                string result = File.ReadAllText(HTMLSource);
 
-            ExportHTMLFile(result);
+                foreach (var valuePair in values)
+                {
+                    // Remplazara el nombre de la llave del par de valores con el nombre clave correspondiente en el documento html
+                    result = result.Replace(valuePair.Key, valuePair.Value);
+                }
+
+                ExportHTMLFile(result);
+            }
+            catch (Exception ex)
+            {
+
+                ApplicationManager.ExceptionHandler(ex);
+            }
         }
 
         public static bool ExportHTMLFile(string HTMLSource)

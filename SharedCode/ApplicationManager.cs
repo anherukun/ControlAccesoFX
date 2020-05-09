@@ -139,14 +139,22 @@ namespace SharedCode
             try
             {
                 DateTime dateTime = DateTime.Now;
-                MessageBox.Show($"Se ha detectado un error durante la ejecicion del programa, si persiste contacte a su departamento de TI: {e.Message}");
+
+                // Se comprueba de que exista la rita donde se escribira el archivo, cuando no la encuentre, se encargara de crearla
+                if (!Directory.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\Error-Log\\{dateTime.Ticks}-Error.txt"))
+                {
+                    Directory.CreateDirectory($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\Error-Log");
+                }
+
+                
+                MessageBox.Show($"Se ha detectado un error durante la ejecicion del programa, si persiste contacte a su departamento de TI:\n{e.Message}");
 
                 string txt = $"Mensaje:\t{e.Message}\n" +
-                    $"StackTrace:\t{e.StackTrace}\n" +
-                    $"Source:\t{e.Source}\n" +
+                    $"Source: \t{e.Source}\n" +
+                    $"StackTrace:\n{e.StackTrace}\n" +
                     $"TargetSite:\t{e.TargetSite}" +
-                    $"HelpLink:\t{e.HelpLink}" +
-                    $"HResult:\t{e.HResult}";
+                    $"HelpLink:\t{e.HelpLink}\n" +
+                    $"HResult:\t{e.HResult}\n";
 
                 if (e.Data.Count > 0)
                     foreach (var key in e.Data)
