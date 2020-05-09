@@ -39,27 +39,38 @@ Los parametros son valores que obtiene del archivo `sources.data` ubicado en la 
 
 # Metodos
 ----
-##[ToBytes(GlobalSettings globalSettings)]()
+##[InsertData(string sql)]()
 
-Serializa de la clase `GlobalSettings` a un arreglo de `bytes`
+Ejecuta una instrucción de inserción SQL en la base de datos.
 
 ``` csharp
-public static byte[] ToBytes(GlobalSettings globalSettings)
+public bool InsertData(string sql) 
 {
-    if (globalSettings == null)
-        return null;
+    using (OleDbConnection connection = new OleDbConnection(ConnectionString))
+    {
+        OleDbCommand command = new OleDbCommand(sql, connection);
+        try
+        {
+            connection.Open();
 
-    BinaryFormatter formatter = new BinaryFormatter();
-    MemoryStream stream = new MemoryStream();
-    formatter.Serialize(stream, globalSettings);
+            command.ExecuteNonQuery();
+            connection.Close();
+            return true;
+        }
+        catch (Exception ex)
+        {
+            connection.Close();
 
-    return stream.ToArray();
+            ApplicationManager.ExceptionHandler(ex);
+            return false;
+        }
+    }
 }
 ```
 
 **Retorno**
 ``` csharp 
-byte[]
+bool
 ```
 
 ----
