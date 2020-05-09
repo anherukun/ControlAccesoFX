@@ -57,3 +57,4 @@ byte[]
 
 # Ver también
 - [SharedCode](/SharedCode)
+- [SharedCode.ApplicationManager](/SharedCode/SharedCode.ApplicationManager)
