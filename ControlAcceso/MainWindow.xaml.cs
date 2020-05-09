@@ -313,6 +313,7 @@ namespace ControlAcceso
 
             if (input.HasSelection())
             {
+                btn_informe.IsEnabled = false;
                 List<CARegistro> r = new List<CARegistro>();
                 await Task.Run(() =>
                 {
@@ -320,6 +321,8 @@ namespace ControlAcceso
                 });
 
                 CARegistro.PrepareDataToTemplete(this.departamento, input.RetriveSelection(), r);
+
+                btn_informe.IsEnabled = true;
             }
             else
                 MessageBox.Show("Se ha cancelado la operacion");
