@@ -252,3 +252,4 @@ static public void ExceptionHandler(Exception e)
 ```
 # Ver también
 - [SharedCode](/SharedCode)
+- [SharedCode.ApplicationManager.GlobalSettings](/SharedCode/SharedCode.ApplicationManager/Sharedcode.ApplicationManager.GlobalSettings)
