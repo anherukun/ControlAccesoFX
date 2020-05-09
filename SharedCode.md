@@ -11,4 +11,4 @@ using SharedCode.Metadata;
 
 # Vea también
 - [Clase ApplicationManager](/SharedCode/SharedCode.ApplicationManager)
-- [Clase DatabaseManager]()
+- [Clase DatabaseManager](/SharedCode/SharedCode.DatabaseManager)
