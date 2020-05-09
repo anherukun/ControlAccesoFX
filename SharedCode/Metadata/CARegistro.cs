@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 
 namespace SharedCode.Metadata
 {
@@ -21,21 +22,17 @@ namespace SharedCode.Metadata
         {
             string sql = "";
             sql = $"INSERT INTO REGISTRO (FICHA, CLAVEDEPTO, FECHA, HENTRADA, HSALIDA) " +
-                $"VALUES ({registro.Ficha}, {registro.ClaveDepto}, \"{registro.Fecha.Date}\", {registro.HEntrada}, {registro.HSalida})";
+                $"VALUES ({registro.Ficha}, {registro.ClaveDepto}, \"{registro.Fecha.Date.ToShortDateString()}\", {registro.HEntrada}, {registro.HSalida})";
             return sql;
         }
 
         /// <summary>Crea una instruccion SQL para ejecutar en una Base de Datos</summary>
         /// <param name="registro">Un objeto de tipo <see cref="CARegistro"/></param>
         /// <returns>Instruccion SQL</returns>
-        public static string UpdateSQL(CARegistro registro)
+        public static string UpdateHSalidaSQL(CARegistro registro)
         {
             string sql = "";
             sql = $"UPDATE REGISTRO SET " +
-                $"FICHA = {registro.Ficha}, " +
-                $"CLAVEDEPTO = {registro.ClaveDepto}, " +
-                $"FECHA = \"{registro.Fecha}\", " +
-                $"HENTRADA = {registro.HEntrada}, " +
                 $"HSALIDA = {registro.HSalida} " +
                 $"WHERE UID LIKE {registro.UID}";
             return sql;
@@ -71,40 +68,47 @@ namespace SharedCode.Metadata
         {
             Dictionary<string, string> valuePairs = new Dictionary<string, string>();
 
-            valuePairs.Add("{fecha-generacion}", $"{DateTime.Now.ToLongDateString()}");
-            valuePairs.Add("{departamento}", $"[{d.Clave}] - {d.Nombre}");
-            valuePairs.Add("{fecha-corte}", $"{dateTime.ToLongTimeString()}");
-            valuePairs.Add("{recuento-trabajadores}", $"{reg.Count} Trabajadores");
+            if (reg != null)
+            {
+                valuePairs.Add("{fecha-generacion}", $"{DateTime.Now.ToLongDateString()}  @ {DateTime.Now.ToShortTimeString()}");
+                valuePairs.Add("{departamento}", $"[{d.Clave}] - {d.Nombre}");
+                valuePairs.Add("{fecha-corte}", $"{dateTime.ToLongDateString()}");
+                if (reg.Count > 1)
+                    valuePairs.Add("{recuento-trabajadores}", $"{reg.Count} Trabajadores");
 
-            string row = "";
-            await Task.Run(() => {
-                for (int i = 0; i < reg.Count; i++)
+                string row = "";
+                await Task.Run(() =>
                 {
-                    Personal p = Personal.FromDictionarySingle(new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.[FICHA] LIKE {reg[i].Ficha}"));
-
-                    DateTime entrada = new DateTime(long.Parse(reg[i].HEntrada));
-
-                    if (long.Parse(reg[i].HSalida) != 0)
+                    for (int i = 0; i < reg.Count; i++)
                     {
-                        DateTime salida = new DateTime(long.Parse(reg[i].HSalida));
-                        string difHoras = $"{salida.Subtract(entrada).Hours}", difMin = $"{salida.Subtract(entrada).Minutes}";
-                        if (difHoras.Length == 1)
-                            difHoras = $"0{salida.Subtract(entrada).Hours}";
-                        if (difMin.Length == 1)
-                            difMin = $"0{salida.Subtract(entrada).Minutes}";
+                        Personal p = Personal.FromDictionarySingle(new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.[FICHA] LIKE {reg[i].Ficha}"));
 
-                        row += $"<tr class=\"historico - registros\" id=\"reg\"><td id=\"registro\"></td><td id=\"registro\"><p>{i}</p></td><td id=\"registro\"><p>{p.Ficha}</p></td><td id=\"registro\" colspan=\"4\"><p>{p.Nombre.ToUpper()}</p></td><td id=\"registro\"><p>{entrada.ToShortTimeString()}</p></td><td id=\"registro\"><p>{salida.ToShortTimeString()}</p></td><td id=\"registro\"><p>{difHoras}:{difMin}</p></td></tr>\n";
+                        DateTime entrada = new DateTime(long.Parse(reg[i].HEntrada));
+
+                        if (long.Parse(reg[i].HSalida) != 0)
+                        {
+                            DateTime salida = new DateTime(long.Parse(reg[i].HSalida));
+                            string difHoras = $"{salida.Subtract(entrada).Hours}", difMin = $"{salida.Subtract(entrada).Minutes}";
+                            if (difHoras.Length == 1)
+                                difHoras = $"0{salida.Subtract(entrada).Hours}";
+                            if (difMin.Length == 1)
+                                difMin = $"0{salida.Subtract(entrada).Minutes}";
+
+                            row += $"<tr class=\"historico-registros\" id=\"reg\">\n<td id=\"registro\">\n</td>\n<td id=\"registro\">\n<p>{i+1}</p>\n</td>\n<td id=\"registro\">\n<p>{p.Ficha}</p>\n</td>\n<td id=\"registro\" colspan=\"4\">\n<p>{p.Nombre.ToUpper()}</p>\n</td>\n<td id=\"registro\">\n<p>{entrada.ToShortTimeString()}</p>\n</td>\n<td id=\"registro\">\n<p>{salida.ToShortTimeString()}</p>\n</td>\n<td id=\"registro\">\n<p>{difHoras}:{difMin}</p>\n</td>\n</tr>\n";
+                        }
+                        else
+                        {
+                            row += $"<tr class=\"historico-registros\" id=\"reg\">\n<td id=\"registro\">\n</td>\n<td id=\"registro\">\n<p>{i+1}</p>\n</td>\n<td id=\"registro\">\n<p>{p.Ficha}</p>\n</td>\n<td id=\"registro\" colspan=\"4\">\n<p>{p.Nombre.ToUpper()}</p>\n</td>\n<td id=\"registro\">\n<p>{entrada.ToShortTimeString()}</p>\n</td>\n<td id=\"registro\">\n<p>--:--</p>\n</td>\n<td id=\"registro\">\n<p>--:--</p>\n</td>\n</tr>\n";
+                        }
                     }
-                    else
-                    {
-                        row += $"<tr class=\"historico - registros\" id=\"reg\"><td id=\"registro\"></td><td id=\"registro\"><p>{i}</p></td><td id=\"registro\"><p>{p.Ficha}</p></td><td id=\"registro\" colspan=\"4\"><p>{p.Nombre.ToUpper()}</p></td><td id=\"registro\"><p>{entrada.ToShortTimeString()}</p></td><td id=\"registro\"><p>-</p></td><td id=\"registro\"><p>--:--</p></td></tr>\n";
-                    }
-                }
-            });
+                });
 
-            valuePairs.Add("{registros}", $"{row}");
+                valuePairs.Add("{registros}", $"{row}");
 
-            HTMLHandler.GenerateHTML(ApplicationManager.RetriveFromSourcesFile()["TEMPLATE_INF01"], valuePairs);
+                HTMLHandler.GenerateHTML(ApplicationManager.RetriveFromSourcesFile()["TEMPLATE_INF01"], valuePairs);
+            }
+            else
+                MessageBox.Show("No existen registros para la fecha seleccionada");
         }
     }
 }

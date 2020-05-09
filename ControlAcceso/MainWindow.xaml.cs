@@ -38,6 +38,7 @@ namespace ControlAcceso
         private List<CARegistro> registros;
         private ApplicationManager.GlobalSettings globalSettings;
         private Departamento departamento;
+        private bool isLogRefreshing;
         public MainWindow()
         {
             InitializeComponent();
@@ -140,6 +141,7 @@ namespace ControlAcceso
         private async void RefreshRegLog()
         {
             progressbar.Visibility = Visibility.Visible;
+            isLogRefreshing = true;
 
             if (registros != null)
                 registros.Clear();
@@ -192,6 +194,8 @@ namespace ControlAcceso
             }
 
             progressbar.Visibility = Visibility.Hidden;
+
+            isLogRefreshing = false;
             Console.WriteLine("Application: RefreshLog Finished");
         }
 
@@ -218,7 +222,7 @@ namespace ControlAcceso
         {
             registro.HSalida = DateTime.Now.Ticks.ToString();
 
-            new DatabaseManager().InsertData(CARegistro.UpdateSQL(registro));
+            new DatabaseManager().InsertData(CARegistro.UpdateHSalidaSQL(registro));
 
             RefreshRegLog();
         }
@@ -288,11 +292,13 @@ namespace ControlAcceso
 
         private void lst_registro_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (lst_registro.SelectedIndex > -1)
+            if (lst_registro.SelectedIndex > -1 && isLogRefreshing == false)
                 if (long.Parse(registros[lst_registro.SelectedIndex].HSalida) > 0)
                     btn_salida.IsEnabled = false;
                 else
                     btn_salida.IsEnabled = true;
+            else
+                btn_salida.IsEnabled = false;
         }
 
         private async void Button_Click_2(object sender, RoutedEventArgs e)
@@ -302,13 +308,18 @@ namespace ControlAcceso
             input.Owner = this;
             input.ShowDialog();
 
-            List<CARegistro> r = new List<CARegistro>();
-            await Task.Run(() => 
+            if (input.HasSelection())
             {
-                r = CARegistro.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary($"SELECT * FROM REGISTRO WHERE REGISTRO.[FECHA] LIKE \"{input.RetriveSelection().ToShortDateString()}\" AND REGISTRO.[CLAVEDEPTO] LIKE {this.departamento.Clave} ORDER BY REGISTRO.[UID] DESC"));
-            });
+                List<CARegistro> r = new List<CARegistro>();
+                await Task.Run(() =>
+                {
+                    r = CARegistro.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary($"SELECT * FROM REGISTRO WHERE REGISTRO.[FECHA] LIKE \"{input.RetriveSelection().ToShortDateString()}\" AND REGISTRO.[CLAVEDEPTO] LIKE {this.departamento.Clave} ORDER BY REGISTRO.[UID] DESC"));
+                });
 
-            CARegistro.PrepareDataToTemplete(this.departamento, input.RetriveSelection(), r);
+                CARegistro.PrepareDataToTemplete(this.departamento, input.RetriveSelection(), r);
+            }
+            else
+                MessageBox.Show("Se ha cancelado la operacion");
         }
     }
 }

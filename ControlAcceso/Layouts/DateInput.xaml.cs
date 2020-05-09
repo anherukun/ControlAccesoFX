@@ -34,7 +34,7 @@ namespace ControlAcceso.Layouts
             txt_mensaje.Text = message;
         }
 
-        public bool HasSelection() => selectedDate != null ? true : false;
+        public bool HasSelection() => datepicker.SelectedDate.HasValue;
 
         public DateTime RetriveSelection() => selectedDate;
 
@@ -51,7 +51,8 @@ namespace ControlAcceso.Layouts
 
         private void Button_Click(object sender, RoutedEventArgs e)
         {
-            selectedDate = datepicker.SelectedDate.Value;
+            if (datepicker.SelectedDate.HasValue)
+                selectedDate = datepicker.SelectedDate.Value;
             this.Close();
         }
     }

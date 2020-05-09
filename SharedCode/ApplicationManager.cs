@@ -134,6 +134,35 @@ namespace SharedCode
             }
         }
 
+        static public void ExceptionHandler(Exception e)
+        {
+            try
+            {
+                DateTime dateTime = DateTime.Now;
+                MessageBox.Show($"Se ha detectado un error durante la ejecicion del programa, si persiste contacte a su departamento de TI: {e.Message}");
+
+                string txt = $"Mensaje:\t{e.Message}\n" +
+                    $"StackTrace:\t{e.StackTrace}\n" +
+                    $"Source:\t{e.Source}\n" +
+                    $"TargetSite:\t{e.TargetSite}" +
+                    $"HelpLink:\t{e.HelpLink}" +
+                    $"HResult:\t{e.HResult}";
+
+                if (e.Data.Count > 0)
+                    foreach (var key in e.Data)
+                    {
+                        txt += $"{key.ToString()}\t";
+                    }
+                    
+                File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\Error-Log\\{dateTime.Ticks}-Error.txt", txt);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Se detectado un error en la ejecucion y se intento registrar el evento, contacte a su departamto de TI\nRaiz: {e.Message} \nCatcher:{ex.Message}");
+                throw;
+            }
+        }
+
         /// <summary>Escribe un valor en una llave del registro de Windows</summary>
         /// <param name="keyPath">Direccion de la llave de registro</param>
         /// <param name="valueName">Nombre del valor</param>
