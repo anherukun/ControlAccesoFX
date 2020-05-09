@@ -152,7 +152,7 @@ namespace ControlAcceso
                 return RefreshCARegistro();
             });
 
-            Console.WriteLine("Application: RefreshLog Started");
+            Console.WriteLine($"Application: RefreshLog Started \tTime: {DateTime.Now.ToLongTimeString()}");
             if (registros != null && registros.Count > 0)
             {
                 List<MainWindow.BindingRegister> bindings = new List<BindingRegister>();
@@ -187,16 +187,19 @@ namespace ControlAcceso
                     bindings.Add(binding);
                 }
 
-                Application.Current.Dispatcher.Invoke(new Action(() =>
+                await Task.Run(() =>
                 {
-                    lst_registro.ItemsSource = bindings;
-                }));
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    {
+                        lst_registro.ItemsSource = bindings;
+                    }));
+                });
             }
 
             progressbar.Visibility = Visibility.Hidden;
 
             isLogRefreshing = false;
-            Console.WriteLine("Application: RefreshLog Finished");
+            Console.WriteLine($"Application: RefreshLog Finished\tTime: {DateTime.Now.ToLongTimeString()}");
         }
 
         private void SendNewEntry(Personal p)
