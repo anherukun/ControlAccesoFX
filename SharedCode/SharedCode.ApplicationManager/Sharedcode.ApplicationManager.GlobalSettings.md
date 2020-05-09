@@ -7,6 +7,15 @@ Proporcionando métodos estáticos para:
 
 [[_TOC_]]
 
+#Propiedades
+----
+
+| Acceso   | Tipo de dato | Nombre de la variable &emsp;&emsp;&emsp;&emsp;&emsp; | Default &emsp;&emsp;&emsp;&emsp; |
+|----------|--------------|------------------------------------------------------|----------------------------------|
+| `public` | `int`        | ClaveDepto                                           | 0                                |
+| `public` | `int`        | LogLimit                                             | 15                               |
+| `public` | `bool`       | BootOnStartup                                        | false                            |
+
 # Metodos
 ----
 ##[ToBytes(GlobalSettings globalSettings)]()
