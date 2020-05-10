@@ -12,3 +12,4 @@ using SharedCode.Metadata;
 # Vea también
 - [Clase ApplicationManager](/SharedCode/SharedCode.ApplicationManager)
 - [Clase DatabaseManager](/SharedCode/SharedCode.DatabaseManager)
+- [Clase HTMLHandler](/SharedCode/SharedCode.HTMLHandler)
