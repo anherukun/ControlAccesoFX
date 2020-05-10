@@ -251,5 +251,6 @@ static public void ExceptionHandler(Exception e)
 }
 ```
 # Ver también
-- [SharedCode](/SharedCode)
-- [SharedCode.ApplicationManager.GlobalSettings](/SharedCode/SharedCode.ApplicationManager/Sharedcode.ApplicationManager.GlobalSettings)
+- [Clase SharedCode](/SharedCode)
+- [Clase DatabaseManager](/SharedCode/SharedCode.DatabaseManager)
+- [Clase GlobalSettings](/SharedCode/SharedCode.ApplicationManager/Sharedcode.ApplicationManager.GlobalSettings)
