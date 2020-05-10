@@ -65,5 +65,5 @@ GlobalSettings
 ```
 
 # Ver también
-- [SharedCode](/SharedCode)
-- [SharedCode.ApplicationManager](/SharedCode/SharedCode.ApplicationManager)
+- [Clase SharedCode](/SharedCode)
+- [Clase ApplicationManager](/SharedCode/SharedCode.ApplicationManager)
