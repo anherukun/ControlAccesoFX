@@ -76,7 +76,7 @@ bool
 ----
 ##[FromDatabaseToDictionary(string sql)]()
 
-Obtiene una lista con múltiples registros representados en elementos <Clave, Valor> como respuesta a la transacción SQL enviada a la base de datos
+Obtiene una lista con múltiples registros representados en multiples elementos <Clave, Valor> como respuesta a la transacción SQL enviada a la base de datos
 
 ``` csharp
 public List<Dictionary<string, object>> FromDatabaseToDictionary(string sql)
@@ -121,6 +121,55 @@ public List<Dictionary<string, object>> FromDatabaseToDictionary(string sql)
 List<Dictionary<string, string>>
 ```
 
+----
+##[FromDatabaseToSingleDictionary(string sql)]()
+
+Obtiene un solo objeto con múltiples elementos <Clave, Valor> como respuesta a la transacción SQL enviada a la base de datos
+
+``` csharp
+public Dictionary<string, object> FromDatabaseToSingleDictionary(string sql)
+{
+    Dictionary<string, object> data = new Dictionary<string, object>();
+    using (OleDbConnection connection = new OleDbConnection(ConnectionString))
+    {
+        OleDbCommand command = new OleDbCommand(sql, connection);
+        OleDbDataReader reader;
+        try
+        {
+            connection.Open();
+            reader = command.ExecuteReader();
+            int index = reader.FieldCount;
+            while (reader.Read())
+            {
+                Dictionary<string, object> o = new Dictionary<string, object>();
+                for (int i = 0; i < index; i++)
+                {
+                    o.Add(reader.GetName(i), reader.GetValue(i));
+                }
+                data = o;
+            }
+
+            reader.Close();
+            connection.Close();
+            return data;
+        }
+        catch (Exception ex)
+        {
+            connection.Close();
+
+            ApplicationManager.ExceptionHandler(ex);
+            return null;
+        }
+    }
+}
+```
+
+**Retorno**
+``` csharp 
+Dictionary<string, string>
+```
+
+---
 # Ver también
 - [Clase SharedCode](/SharedCode)
 - [Clase ApplicationManager](/SharedCode/SharedCode.ApplicationManager)
