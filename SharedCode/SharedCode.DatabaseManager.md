@@ -74,26 +74,51 @@ bool
 ```
 
 ----
-##[FromBytes(byte[] bytes)]()
+##[FromDatabaseToDictionary(string sql)]()
 
-Deserializa un arreglo de `bytes` a un objeto de clase `GlobalSetings`
+Obtiene una lista con múltiples registros representados en elementos <Clave, Valor> como respuesta a la transacción SQL enviada a la base de datos
 
 ``` csharp
-public static GlobalSettings FromBytes(byte[] bytes)
+public List<Dictionary<string, object>> FromDatabaseToDictionary(string sql)
 {
-    MemoryStream stream = new MemoryStream();
-    BinaryFormatter formatter = new BinaryFormatter();
-    stream.Write(bytes, 0, bytes.Length);
-    stream.Seek(0, SeekOrigin.Begin);
-    GlobalSettings globalSettings = (GlobalSettings)formatter.Deserialize(stream);
+    List<Dictionary<string, object>> data = new List<Dictionary<string, object>>();
+    using (OleDbConnection connection = new OleDbConnection(ConnectionString))
+    {
+        OleDbCommand command = new OleDbCommand(sql, connection);
+        OleDbDataReader reader;
+        try
+        {
+            connection.Open();
+            reader = command.ExecuteReader();
+            int index = reader.FieldCount;
+            while (reader.Read())
+            {
+                Dictionary<string, object> o = new Dictionary<string, object>();
+                for (int i = 0; i < index; i++)
+                {
+                    o.Add(reader.GetName(i), reader.GetValue(i));
+                }
+                data.Add(o);
+            }
 
-    return globalSettings;
+            reader.Close();
+            connection.Close();
+            return data;
+        }
+        catch (Exception ex)
+        {
+            connection.Close();
+
+            ApplicationManager.ExceptionHandler(ex);
+            return null;
+        }
+    }
 }
 ```
 
 **Retorno**
 ``` csharp 
-GlobalSettings
+List<Dictionary<string, string>>
 ```
 
 # Ver también
