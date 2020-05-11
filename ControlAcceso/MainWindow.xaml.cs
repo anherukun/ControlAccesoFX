@@ -51,7 +51,7 @@ namespace ControlAcceso
                 RefreshRegLog();
             }
             else
-                MessageBox.Show("Para utilizar el sistema, ve a configuraciones y seleciona el departamento");
+                MessageBox.Show("Para utilizar el sistema, ve a configuraciones y selecciona el departamento");
         }
         private void UpdateClock(object sender, EventArgs e)
         {
