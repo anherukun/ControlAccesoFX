@@ -66,17 +66,23 @@ namespace ControlAcceso.Layouts
         {
             UpdateLayout();
         }
-
-        private void Button_Click(object sender, RoutedEventArgs e)
-        {
-            selectedIndex = cmb_lista.SelectedIndex;
-            this.Close();
-        }
-
+        
         private void Window_Closed(object sender, EventArgs e)
         {
             if (selectedIndex == -1)
                 ApplicationManager.InitGB();
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            // ACEPTAR
+            if (cmb_lista.SelectedIndex > -1)
+            {
+                selectedIndex = cmb_lista.SelectedIndex;
+                this.Close();
+            }
+            else
+                MessageBox.Show("Debes seleccionar un elemento de la lista.");
         }
     }
 }

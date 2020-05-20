@@ -88,7 +88,7 @@ namespace SharedCode.Metadata
         /// <returns><see cref="List{T}"/> de objetos de la case <see cref="Personal"/></returns>
         public static List<CARegistro> FromDictionaryListToList(List<Dictionary<string, object>> keyValues)
         {
-            if (keyValues.Count > 0)
+            if (keyValues != null && keyValues.Count > 0)
             {
                 List<CARegistro> ls = new List<CARegistro>();
                 foreach (Dictionary<string, object> item in keyValues)

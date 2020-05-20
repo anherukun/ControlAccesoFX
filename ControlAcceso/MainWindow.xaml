@@ -37,6 +37,7 @@
 
                     <Button x:Name="btn_entrada" Grid.Column="0" Content="Entrada" Margin="8"
                             FontSize="18" Click="Button_Click"/>
+                    
                     <Button x:Name="btn_salida" Grid.Column="1" Content="Salida" Margin="8"
                             FontSize="18" IsEnabled="False" Click="btn_salida_Click"/>
                 </Grid>

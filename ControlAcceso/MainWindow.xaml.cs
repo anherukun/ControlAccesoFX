@@ -145,10 +145,11 @@ namespace ControlAcceso
         private async void RefreshRegLog()
         {
             Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: RefreshCARegistro Requested");
+            isLogRefreshing = true;
+
             List<BindingRegister> bindings = new List<BindingRegister>();
 
             progressbar.Visibility = Visibility.Visible;
-            isLogRefreshing = true;
 
             if (registros != null)
                 registros.Clear();
@@ -160,9 +161,9 @@ namespace ControlAcceso
                 return RefreshCARegistro();
             });
 
+            Console.WriteLine($"Application: RefreshLog Started");
             progressbar.IsIndeterminate = false;
 
-            Console.WriteLine($"Application: RefreshLog Started");
             if (registros != null && registros.Count > 0)
             {
                 await Task.Run(() =>
@@ -220,17 +221,20 @@ namespace ControlAcceso
                             progressbar.Maximum = registros.Count;
                         }));
 
+
+                        isLogRefreshing = false;
                         return 0;
                     });
                 }
                 catch (TaskCanceledException ex)
                 {
+                    isLogRefreshing = false;
                     Console.WriteLine(ex);
                 }
+
             }
 
             progressbar.Value = 0;
-            isLogRefreshing = false;
             Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: RefreshLog Finished");
         }
 
@@ -275,7 +279,9 @@ namespace ControlAcceso
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             //NUEVA ENTRADA
-            cancellationToken = new CancellationToken(true);
+            if (isLogRefreshing == true)
+                cancellationToken = new CancellationToken(true);
+
             Thread.Sleep(350);
 
             lst_registro.SelectedIndex = -1;
@@ -291,7 +297,10 @@ namespace ControlAcceso
             if (input.HasSelection())
                 SendNewEntry(ls[input.RetriveSelection()]);
             else
+            {
+                MessageBox.Show("Se ha cancelado la operacion");
                 RefreshRegLog();
+            }
 
             cancellationToken = new CancellationToken(false);
 
@@ -323,32 +332,6 @@ namespace ControlAcceso
             ApplicationManager.InitGB();
         }
 
-        private void btn_salida_Click(object sender, RoutedEventArgs e)
-        {
-            // REGISTRAR SALIDA
-            cancellationToken = new CancellationToken(true);
-            MessageBoxResult result = MessageBox.Show($"Deseas registrar la salida de {Personal.FromDictionarySingle(new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.[FICHA] LIKE {registros[lst_registro.SelectedIndex].Ficha}")).Nombre}", "", MessageBoxButton.YesNo);
-
-            if (result == MessageBoxResult.Yes)
-                SendUpdatedEntry(registros[lst_registro.SelectedIndex]);
-
-            lst_registro.SelectedIndex = -1;
-            btn_salida.IsEnabled = false;
-
-            cancellationToken = new CancellationToken(false);
-        }
-
-        private void lst_registro_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            if (lst_registro.SelectedIndex > -1 && isLogRefreshing == false)
-                if (long.Parse(registros[lst_registro.SelectedIndex].HSalida) > 0)
-                    btn_salida.IsEnabled = false;
-                else
-                    btn_salida.IsEnabled = true;
-            else
-                btn_salida.IsEnabled = false;
-        }
-
         private async void Button_Click_2(object sender, RoutedEventArgs e)
         {
             // GENERAR INFORME
@@ -374,6 +357,32 @@ namespace ControlAcceso
                 MessageBox.Show("Se ha cancelado la operacion");
 
             cancellationToken = new CancellationToken(false);
+        }
+
+        private void btn_salida_Click(object sender, RoutedEventArgs e)
+        {
+            // REGISTRAR SALIDA
+            cancellationToken = new CancellationToken(true);
+            MessageBoxResult result = MessageBox.Show($"Deseas registrar la salida de {Personal.FromDictionarySingle(new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.[FICHA] LIKE {registros[lst_registro.SelectedIndex].Ficha}")).Nombre}", "", MessageBoxButton.YesNo);
+
+            if (result == MessageBoxResult.Yes)
+                SendUpdatedEntry(registros[lst_registro.SelectedIndex]);
+
+            lst_registro.SelectedIndex = -1;
+            btn_salida.IsEnabled = false;
+
+            cancellationToken = new CancellationToken(false);
+        }
+
+        private void lst_registro_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (lst_registro.SelectedIndex > -1 && isLogRefreshing == false)
+                if (long.Parse(registros[lst_registro.SelectedIndex].HSalida) > 0)
+                    btn_salida.IsEnabled = false;
+                else
+                    btn_salida.IsEnabled = true;
+            else
+                btn_salida.IsEnabled = false;
         }
     }
 }
