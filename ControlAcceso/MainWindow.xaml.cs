@@ -199,7 +199,11 @@ namespace ControlAcceso
                         for (int i = 0; i < bindings.Count; i++)
                         {
                             if (cancellationToken.IsCancellationRequested)
+                            {
+                                isLogRefreshing = false;
+                                Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: Log Refresh Aborted");
                                 throw new TaskCanceledException("Application: Operation Aborted");
+                            }
 
                             Application.Current.Dispatcher.Invoke(new Action(() =>
                             {
@@ -208,7 +212,7 @@ namespace ControlAcceso
 
                             bindings[i].NombreCompleto = CARegistro.ObtenerNombreCompleto(int.Parse(bindings[i].Ficha));
 
-
+                            Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: Name Resolved");
                             Application.Current.Dispatcher.Invoke(new Action(() =>
                             {
                                 lst_registro.Items.Refresh();
@@ -223,19 +227,19 @@ namespace ControlAcceso
 
 
                         isLogRefreshing = false;
+                        Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: RefreshLog Finished");
                         return 0;
                     });
                 }
                 catch (TaskCanceledException ex)
                 {
                     isLogRefreshing = false;
-                    Console.WriteLine(ex);
+                    Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: Log Refresh Aborted");
                 }
 
             }
 
             progressbar.Value = 0;
-            Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: RefreshLog Finished");
         }
 
         private void SendNewEntry(Personal p)
@@ -282,7 +286,7 @@ namespace ControlAcceso
             if (isLogRefreshing == true)
                 cancellationToken = new CancellationToken(true);
 
-            Thread.Sleep(350);
+            Thread.Sleep(250);
 
             lst_registro.SelectedIndex = -1;
             List<Personal> ls = await Task.Run(() =>
@@ -359,15 +363,21 @@ namespace ControlAcceso
             cancellationToken = new CancellationToken(false);
         }
 
-        private void btn_salida_Click(object sender, RoutedEventArgs e)
+        private void Btn_salida_Click(object sender, RoutedEventArgs e)
         {
             // REGISTRAR SALIDA
-            cancellationToken = new CancellationToken(true);
-            MessageBoxResult result = MessageBox.Show($"Deseas registrar la salida de {Personal.FromDictionarySingle(new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.[FICHA] LIKE {registros[lst_registro.SelectedIndex].Ficha}")).Nombre}", "", MessageBoxButton.YesNo);
+            if (isLogRefreshing == true)
+                cancellationToken = new CancellationToken(true);
+            Thread.Sleep(250);
 
+            Dictionary<string, object> keyValues = new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.[FICHA] LIKE {registros[lst_registro.SelectedIndex].Ficha}");
+
+            MessageBoxResult result = MessageBox.Show($"Deseas registrar la salida de {(string)keyValues["NOMBRE"]} \n\nFecha de entrada:\t{registros[lst_registro.SelectedIndex].Fecha.ToShortDateString()}" +
+                $"\nHora de entrada:\t{registros[lst_registro.SelectedIndex].HEntradaCompleta}", "", MessageBoxButton.YesNo);
+            
             if (result == MessageBoxResult.Yes)
                 SendUpdatedEntry(registros[lst_registro.SelectedIndex]);
-
+            
             lst_registro.SelectedIndex = -1;
             btn_salida.IsEnabled = false;
 
@@ -376,7 +386,7 @@ namespace ControlAcceso
 
         private void lst_registro_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (lst_registro.SelectedIndex > -1 && isLogRefreshing == false)
+            if (lst_registro.SelectedIndex > -1)
                 if (long.Parse(registros[lst_registro.SelectedIndex].HSalida) > 0)
                     btn_salida.IsEnabled = false;
                 else

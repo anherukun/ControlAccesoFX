@@ -21,7 +21,7 @@
                 <Image Grid.Column="0" Source="/ControlAcceso;component/images/electricity.png"/>
                 <StackPanel Grid.Column="1" Margin="16,0,0,0">
                     <TextBlock x:Name="txt_mensaje" Text="Aqui iria un mensaje, si tan solo tuviera uno... Y pulse Aceptar." TextWrapping="Wrap"/>
-                    <ComboBox x:Name="cmb_lista" IsEditable="True" Margin="0,8,0,0"/>
+                    <ComboBox x:Name="cmb_lista" IsEditable="True" ItemsSource="{Binding IsAsync=True}" DisplayMemberPath="ListElement" Margin="0,8,0,0"/>
                 </StackPanel>
             </Grid>
 

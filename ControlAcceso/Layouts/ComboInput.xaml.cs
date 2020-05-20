@@ -44,9 +44,9 @@ namespace ControlAcceso.Layouts
             await Task.Run(() =>
             {
                 if (listaPersonal != null)
-                    foreach (Personal personal in listaPersonal)
-                        Application.Current.Dispatcher.Invoke(new Action(() => { cmb_lista.Items.Add($"{personal.Ficha}\t|  {personal.Nombre}"); }));
+                    Application.Current.Dispatcher.Invoke(new Action(() => { cmb_lista.ItemsSource = listaPersonal; }));
                 
+
                 else if (listaDepartamento != null)
                     foreach (Departamento departamento in listaDepartamento)
                         Application.Current.Dispatcher.Invoke(new Action(() => { cmb_lista.Items.Add($"{departamento.Clave}\t|  {departamento.Nombre}"); }));
