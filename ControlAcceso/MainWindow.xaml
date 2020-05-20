@@ -46,10 +46,11 @@
                 <ListView.View>
                     <GridView AllowsColumnReorder="False">
                         <GridViewColumn DisplayMemberBinding="{Binding Ficha}" Header="Ficha"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Trabajador}" Header="Trabajador"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Fecha}" Header="Fecha"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Entrada}" Header="Entrada"/>
-                        <GridViewColumn DisplayMemberBinding="{Binding Salida}" Header="Salida"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding NombreCompleto, IsAsync=True}" Header="Trabajador"
+                                        Width="190"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding FechaCorta}" Header="Fecha"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding HEntradaCompleta}" Header="Entrada"/>
+                        <GridViewColumn DisplayMemberBinding="{Binding HSalidaCompleta}" Header="Salida"/>
                     </GridView>
                 </ListView.View>
             </ListView>

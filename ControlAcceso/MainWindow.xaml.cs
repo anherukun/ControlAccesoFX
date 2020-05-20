@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -28,17 +29,20 @@ namespace ControlAcceso
         {
             public int UID { get; set; }
             public string Ficha { get; set; }
-            public string Trabajador { get; set; }
-            public string Fecha { get; set; }
-            public string Entrada { get; set; }
-            public string Salida { get; set; }
+            public string NombreCompleto { get; set; }
+            public string FechaCorta { get; set; }
+            public string HEntradaCompleta { get; set; }
+            public string HSalidaCompleta { get; set; }
             public string Horas { get; set; }
         }
 
         private List<CARegistro> registros;
         private ApplicationManager.GlobalSettings globalSettings;
         private Departamento departamento;
+
+        private CancellationToken cancellationToken = new CancellationToken();
         private bool isLogRefreshing;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -140,6 +144,9 @@ namespace ControlAcceso
 
         private async void RefreshRegLog()
         {
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: RefreshCARegistro Requested");
+            List<BindingRegister> bindings = new List<BindingRegister>();
+
             progressbar.Visibility = Visibility.Visible;
             isLogRefreshing = true;
 
@@ -148,58 +155,83 @@ namespace ControlAcceso
 
             registros = await Task.Run(() =>
             {
+                //throw new TaskCanceledException();
                 Console.WriteLine("Application: RefreshCARegistro Requested");
                 return RefreshCARegistro();
             });
 
-            Console.WriteLine($"Application: RefreshLog Started \tTime: {DateTime.Now.ToLongTimeString()}");
+            progressbar.IsIndeterminate = false;
+
+            Console.WriteLine($"Application: RefreshLog Started");
             if (registros != null && registros.Count > 0)
             {
-                List<MainWindow.BindingRegister> bindings = new List<BindingRegister>();
-                foreach (CARegistro item in registros)
-                {
-                    Personal p = await Task.Run(() =>
-                    {
-                        return Personal.FromDictionarySingle(new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.[FICHA] LIKE {item.Ficha}"));
-                    });
-
-                    BindingRegister binding = new BindingRegister
-                    {
-                        Ficha = $"{p.Ficha}",
-                        Trabajador = p.Nombre,
-                        Fecha = $"{item.Fecha.ToShortDateString()}",
-                        Entrada = $"{new DateTime(long.Parse(item.HEntrada)).ToShortTimeString()}"
-                    };
-
-                    if (long.Parse(item.HSalida) != 0)
-                    {
-                        binding.Salida = $"{new DateTime(long.Parse(item.HSalida)).ToShortTimeString()}";
-
-                        string difHour = $"{new DateTime(long.Parse(item.HSalida)).Subtract(new DateTime(long.Parse(item.HEntrada))).Hours}", difMin = $"{new DateTime(long.Parse(item.HSalida)).Subtract(new DateTime(long.Parse(item.HEntrada))).Minutes}";
-                        if (difHour.Length == 1)
-                            difHour = $"0{new DateTime(long.Parse(item.HSalida)).Subtract(new DateTime(long.Parse(item.HEntrada))).Hours}";
-                        if (difMin.Length == 1)
-                            difMin = $"0{new DateTime(long.Parse(item.HSalida)).Subtract(new DateTime(long.Parse(item.HEntrada))).Minutes}";
-
-                        binding.Horas = $"{difHour}:{difMin}";
-                    }
-
-                    bindings.Add(binding);
-                }
-
                 await Task.Run(() =>
                 {
+                    foreach (var item in registros)
+                    {
+                        BindingRegister br = new BindingRegister
+                        {
+                            Ficha = $"{item.Ficha}",
+                            FechaCorta = item.FechaCorta,
+                            HEntradaCompleta = item.HEntradaCompleta,
+                            HSalidaCompleta = item.HSalidaCompleta
+                        };
+
+                        bindings.Add(br);
+                    }
+
                     Application.Current.Dispatcher.Invoke(new Action(() =>
                     {
                         lst_registro.ItemsSource = bindings;
                     }));
                 });
+
+                try
+                {
+                    Task<int> t = Task.Run(() =>
+                    {
+                        Application.Current.Dispatcher.Invoke(new Action(() =>
+                        {
+                            progressbar.Visibility = Visibility.Visible;
+                            progressbar.Maximum = registros.Count;
+                        }));
+                        for (int i = 0; i < bindings.Count; i++)
+                        {
+                            if (cancellationToken.IsCancellationRequested)
+                                throw new TaskCanceledException("Application: Operation Aborted");
+
+                            Application.Current.Dispatcher.Invoke(new Action(() =>
+                            {
+                                progressbar.Value += 1;
+                            }));
+
+                            bindings[i].NombreCompleto = CARegistro.ObtenerNombreCompleto(int.Parse(bindings[i].Ficha));
+
+
+                            Application.Current.Dispatcher.Invoke(new Action(() =>
+                            {
+                                lst_registro.Items.Refresh();
+                            }));
+                        }
+
+                        Application.Current.Dispatcher.Invoke(new Action(() =>
+                        {
+                            progressbar.Visibility = Visibility.Hidden;
+                            progressbar.Maximum = registros.Count;
+                        }));
+
+                        return 0;
+                    });
+                }
+                catch (TaskCanceledException ex)
+                {
+                    Console.WriteLine(ex);
+                }
             }
 
-            progressbar.Visibility = Visibility.Hidden;
-
+            progressbar.Value = 0;
             isLogRefreshing = false;
-            Console.WriteLine($"Application: RefreshLog Finished\tTime: {DateTime.Now.ToLongTimeString()}");
+            Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: RefreshLog Finished");
         }
 
         private void SendNewEntry(Personal p)
@@ -243,6 +275,9 @@ namespace ControlAcceso
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             //NUEVA ENTRADA
+            cancellationToken = new CancellationToken(true);
+            Thread.Sleep(350);
+
             lst_registro.SelectedIndex = -1;
             List<Personal> ls = await Task.Run(() =>
             {
@@ -255,6 +290,10 @@ namespace ControlAcceso
 
             if (input.HasSelection())
                 SendNewEntry(ls[input.RetriveSelection()]);
+            else
+                RefreshRegLog();
+
+            cancellationToken = new CancellationToken(false);
 
             ApplicationManager.InitGB();
         }
@@ -262,6 +301,7 @@ namespace ControlAcceso
         private async void Button_Click_1(object sender, RoutedEventArgs e)
         {
             // ABRIR OPCIONESs
+            cancellationToken = new CancellationToken(true);
             List<Departamento> ls = await Task.Run(() =>
             {
                 return Departamento.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary("SELECT * FROM DEPARTAMENTOS ORDER BY DEPARTAMENTOS.[CLAVE] ASC"));
@@ -278,12 +318,15 @@ namespace ControlAcceso
                 RefreshRegLog();
             }
 
+            cancellationToken = new CancellationToken(false);
+
             ApplicationManager.InitGB();
         }
 
         private void btn_salida_Click(object sender, RoutedEventArgs e)
         {
             // REGISTRAR SALIDA
+            cancellationToken = new CancellationToken(true);
             MessageBoxResult result = MessageBox.Show($"Deseas registrar la salida de {Personal.FromDictionarySingle(new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.[FICHA] LIKE {registros[lst_registro.SelectedIndex].Ficha}")).Nombre}", "", MessageBoxButton.YesNo);
 
             if (result == MessageBoxResult.Yes)
@@ -291,6 +334,8 @@ namespace ControlAcceso
 
             lst_registro.SelectedIndex = -1;
             btn_salida.IsEnabled = false;
+
+            cancellationToken = new CancellationToken(false);
         }
 
         private void lst_registro_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -307,6 +352,7 @@ namespace ControlAcceso
         private async void Button_Click_2(object sender, RoutedEventArgs e)
         {
             // GENERAR INFORME
+            cancellationToken = new CancellationToken(true);
             DateInput input = new DateInput("Selecciona la fecha para generar el informe");
             input.Owner = this;
             input.ShowDialog();
@@ -326,6 +372,8 @@ namespace ControlAcceso
             }
             else
                 MessageBox.Show("Se ha cancelado la operacion");
+
+            cancellationToken = new CancellationToken(false);
         }
     }
 }
