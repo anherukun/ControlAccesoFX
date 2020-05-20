@@ -38,6 +38,7 @@ namespace ControlAcceso
         private List<CARegistro> registros;
         private ApplicationManager.GlobalSettings globalSettings;
         private Departamento departamento;
+        private bool isLogRefreshing;
         public MainWindow()
         {
             InitializeComponent();
@@ -50,7 +51,7 @@ namespace ControlAcceso
                 RefreshRegLog();
             }
             else
-                MessageBox.Show("Para utilizar el sistema, ve a configuraciones y seleciona el departamento");
+                MessageBox.Show("Para utilizar el sistema, ve a configuraciones y selecciona el departamento");
         }
         private void UpdateClock(object sender, EventArgs e)
         {
@@ -140,6 +141,7 @@ namespace ControlAcceso
         private async void RefreshRegLog()
         {
             progressbar.Visibility = Visibility.Visible;
+            isLogRefreshing = true;
 
             if (registros != null)
                 registros.Clear();
@@ -150,7 +152,7 @@ namespace ControlAcceso
                 return RefreshCARegistro();
             });
 
-            Console.WriteLine("Application: RefreshLog Started");
+            Console.WriteLine($"Application: RefreshLog Started \tTime: {DateTime.Now.ToLongTimeString()}");
             if (registros != null && registros.Count > 0)
             {
                 List<MainWindow.BindingRegister> bindings = new List<BindingRegister>();
@@ -185,14 +187,19 @@ namespace ControlAcceso
                     bindings.Add(binding);
                 }
 
-                Application.Current.Dispatcher.Invoke(new Action(() =>
+                await Task.Run(() =>
                 {
-                    lst_registro.ItemsSource = bindings;
-                }));
+                    Application.Current.Dispatcher.Invoke(new Action(() =>
+                    {
+                        lst_registro.ItemsSource = bindings;
+                    }));
+                });
             }
 
             progressbar.Visibility = Visibility.Hidden;
-            Console.WriteLine("Application: RefreshLog Finished");
+
+            isLogRefreshing = false;
+            Console.WriteLine($"Application: RefreshLog Finished\tTime: {DateTime.Now.ToLongTimeString()}");
         }
 
         private void SendNewEntry(Personal p)
@@ -218,7 +225,7 @@ namespace ControlAcceso
         {
             registro.HSalida = DateTime.Now.Ticks.ToString();
 
-            new DatabaseManager().InsertData(CARegistro.UpdateSQL(registro));
+            new DatabaseManager().InsertData(CARegistro.UpdateHSalidaSQL(registro));
 
             RefreshRegLog();
         }
@@ -288,11 +295,37 @@ namespace ControlAcceso
 
         private void lst_registro_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (lst_registro.SelectedIndex > -1)
+            if (lst_registro.SelectedIndex > -1 && isLogRefreshing == false)
                 if (long.Parse(registros[lst_registro.SelectedIndex].HSalida) > 0)
                     btn_salida.IsEnabled = false;
                 else
                     btn_salida.IsEnabled = true;
+            else
+                btn_salida.IsEnabled = false;
+        }
+
+        private async void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            // GENERAR INFORME
+            DateInput input = new DateInput("Selecciona la fecha para generar el informe");
+            input.Owner = this;
+            input.ShowDialog();
+
+            if (input.HasSelection())
+            {
+                btn_informe.IsEnabled = false;
+                List<CARegistro> r = new List<CARegistro>();
+                await Task.Run(() =>
+                {
+                    r = CARegistro.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary($"SELECT * FROM REGISTRO WHERE REGISTRO.[FECHA] LIKE \"{input.RetriveSelection().ToShortDateString()}\" AND REGISTRO.[CLAVEDEPTO] LIKE {this.departamento.Clave} ORDER BY REGISTRO.[UID] DESC"));
+                });
+
+                CARegistro.PrepareDataToTemplete(this.departamento, input.RetriveSelection(), r);
+
+                btn_informe.IsEnabled = true;
+            }
+            else
+                MessageBox.Show("Se ha cancelado la operacion");
         }
     }
 }

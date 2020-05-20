@@ -15,7 +15,11 @@ namespace SharedCode
 
             OleDbConnectionStringBuilder builder = new OleDbConnectionStringBuilder();
             builder.Provider = $"{values["DATABASE_PROVIDER"]}";
+#if DEBUG
             builder.DataSource = $"{values["DATABASE_PATH_DEBUG"]}";
+#else
+            builder.DataSource = $"{values["DATABASE_PATH"]}";
+#endif
             ConnectionString = builder.ConnectionString;
         }
 
@@ -37,7 +41,9 @@ namespace SharedCode
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(ex.Message);
+                    connection.Close();
+
+                    ApplicationManager.ExceptionHandler(ex);
                     return false;
                 }
             }
@@ -81,7 +87,7 @@ namespace SharedCode
                 {
                     connection.Close();
 
-                    MessageBox.Show(ex.Message);
+                    ApplicationManager.ExceptionHandler(ex);
                     return null;
                 }
             }
@@ -131,7 +137,7 @@ namespace SharedCode
                 {
                     connection.Close();
 
-                    MessageBox.Show(ex.Message);
+                    ApplicationManager.ExceptionHandler(ex);
                     return null;
                 }
             }

@@ -111,7 +111,7 @@ namespace SharedCode
             catch (Exception ex)
             {
                 // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return false;
             }
         }
@@ -129,8 +129,45 @@ namespace SharedCode
             catch (Exception ex)
             {
                 // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return null;
+            }
+        }
+
+        static public void ExceptionHandler(Exception e)
+        {
+            try
+            {
+                DateTime dateTime = DateTime.Now;
+
+                // Se comprueba de que exista la rita donde se escribira el archivo, cuando no la encuentre, se encargara de crearla
+                if (!Directory.Exists($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\Error-Log\\{dateTime.Ticks}-Error.txt"))
+                {
+                    Directory.CreateDirectory($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\Error-Log");
+                }
+
+                
+                MessageBox.Show($"Se ha detectado un error durante la ejecicion del programa, si persiste contacte a su departamento de TI:\n{e.Message}");
+
+                string txt = $"Mensaje:\t{e.Message}\n" +
+                    $"Source: \t{e.Source}\n" +
+                    $"StackTrace:\n{e.StackTrace}\n" +
+                    $"TargetSite:\t{e.TargetSite}" +
+                    $"HelpLink:\t{e.HelpLink}\n" +
+                    $"HResult:\t{e.HResult}\n";
+
+                if (e.Data.Count > 0)
+                    foreach (var key in e.Data)
+                    {
+                        txt += $"{key.ToString()}\t";
+                    }
+                    
+                File.WriteAllText($"{Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData)}\\ControlAcceso\\Error-Log\\{dateTime.Ticks}-Error.txt", txt);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Se detectado un error en la ejecucion y se intento registrar el evento, contacte a su departamto de TI\nRaiz: {e.Message} \nCatcher:{ex.Message}");
+                throw;
             }
         }
 
@@ -157,7 +194,7 @@ namespace SharedCode
             catch (Exception ex)
             {
                 // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return false;
             }
         }
@@ -183,7 +220,7 @@ namespace SharedCode
             catch (Exception ex)
             {
                 // Cuando ocurra algo inesperado, mandara el error en pantalla y retornara un False
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return false;
             }
         }
@@ -208,7 +245,7 @@ namespace SharedCode
             }
             catch (Exception ex)
             {
-                MessageBox.Show(ex.Message);
+                ApplicationManager.ExceptionHandler(ex);
                 return null;
             }
         }
