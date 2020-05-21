@@ -19,6 +19,7 @@ namespace SharedCode
             public int ClaveDepto { get; set; }
             public int LogLimit { get; set; } = 15;
             public bool BootOnStartup { get; set; }
+            public int SecondsToRefresh { get; set; } = 120;
 
             /// <summary>Serializa un objeto de clase <see cref="GlobalSettings"/> a un arreglo de bytes</summary>
             /// <param name="globalSettings">Objeto de clase <see cref="GlobalSettings"/></param>
@@ -53,6 +54,14 @@ namespace SharedCode
                 stream.Seek(0, SeekOrigin.Begin);
                 // Deserealiza los el buffer como un objeto explicito de GlobalSettings
                 GlobalSettings globalSettings = (GlobalSettings)formatter.Deserialize(stream);
+
+                return CheckWithDefaults(globalSettings);
+            }
+
+            private static GlobalSettings CheckWithDefaults(GlobalSettings globalSettings)
+            {
+                globalSettings.LogLimit = globalSettings.LogLimit == 0 ? 15 : globalSettings.LogLimit;
+                globalSettings.SecondsToRefresh = globalSettings.SecondsToRefresh == 0 ? 120 : globalSettings.SecondsToRefresh;
 
                 return globalSettings;
             }

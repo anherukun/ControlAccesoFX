@@ -9,6 +9,8 @@ namespace SharedCode.Metadata
         public int Ficha { get; set; }
         public string Nombre { get; set; }
 
+        public string ListElement { get { return $"{Ficha}  | {Nombre}"; } }
+
         /// <summary>
         /// Transforma una <see cref="List{T}"/> de elementos de un <see cref="Dictionary{TKey, TValue}"/> en una <see cref="List{T}"/> de objetos de la clase <see cref="Personal"/>
         /// </summary>

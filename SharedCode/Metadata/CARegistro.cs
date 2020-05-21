@@ -15,6 +15,49 @@ namespace SharedCode.Metadata
         public string HEntrada { get; set; }
         public string HSalida { get; set; }
 
+        public string NombreCompleto => ObtenerNombreCompleto(Ficha);
+        public string FechaCorta => ResolverFechaCorta();
+        public string HEntradaCompleta => ResolverHoraCompleta(HEntrada);
+        public string HSalidaCompleta => ResolverHoraCompleta(HSalida);
+
+        private string ResolverHoraCompleta(string value)
+        {
+            string result = "--:--";
+            if(long.Parse(value) > 0)
+            {
+                DateTime datetime = new DateTime(long.Parse(value));
+                result = datetime.ToShortTimeString();
+            }
+
+            return result;
+        }
+
+        private string ResolverFechaCorta()
+        {
+            return Fecha.ToShortDateString();
+        }
+
+        public static string ObtenerNombreCompleto(int ficha)
+        {
+            string result = "";
+            Dictionary<string, object> keyValues = new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.FICHA LIKE {ficha}");
+            if (keyValues != null && keyValues.Count > 0)
+                result = (string)keyValues["NOMBRE"];
+            else
+                result = "SIN DATOS DISPONIBLES...";
+
+            // await Task.Run(() =>
+            // {
+            //     Dictionary<string, object> keyValues = new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM PERSONAL WHERE PERSONAL.FICHA LIKE {Ficha}");
+            //     if (keyValues != null && keyValues.Count > 0)
+            //         result = (string)keyValues["NOMBRE"];
+            //     else
+            //         result = "SIN DATOS DISPONIBLES...";
+            // });
+
+            return result;
+        }
+
         /// <summary>Crea una instruccion SQL para ejecutar en una Base de Datos</summary>
         /// <param name="registro">Un objeto de tipo <see cref="CARegistro"/></param>
         /// <returns>Instruccion SQL</returns>
@@ -45,7 +88,7 @@ namespace SharedCode.Metadata
         /// <returns><see cref="List{T}"/> de objetos de la case <see cref="Personal"/></returns>
         public static List<CARegistro> FromDictionaryListToList(List<Dictionary<string, object>> keyValues)
         {
-            if (keyValues.Count > 0)
+            if (keyValues != null && keyValues.Count > 0)
             {
                 List<CARegistro> ls = new List<CARegistro>();
                 foreach (Dictionary<string, object> item in keyValues)
