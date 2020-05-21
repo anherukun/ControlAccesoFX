@@ -29,13 +29,14 @@ namespace ControlAcceso.Layouts
         {
             InitializeComponent();
             listaDepartamento = list as List<Departamento>;
-            
-            txt_registrosmax.Text = "15";
 
-            if (ApplicationManager.FileExistOnAppdata("Settings.data"))
-                globalSettings = ApplicationManager.GlobalSettings.FromBytes(ApplicationManager.ReadBinaryFileOnAppdata("Settings.data"));
-            else
-                globalSettings = new ApplicationManager.GlobalSettings();
+            globalSettings = ApplicationManager.FileExistOnAppdata("Settings.data")
+                ? ApplicationManager.GlobalSettings.FromBytes(ApplicationManager.ReadBinaryFileOnAppdata("Settings.data"))
+                : new ApplicationManager.GlobalSettings();
+
+
+            txt_registrosmax.Text = $"{globalSettings.LogLimit}";
+            txt_minutos.Text = $"{(globalSettings.SecondsToRefresh / 60)}";
         }
 
         new private async void UpdateLayout()
@@ -75,6 +76,7 @@ namespace ControlAcceso.Layouts
                     globalSettings.ClaveDepto = listaDepartamento[cmb_departamento.SelectedIndex].Clave;
                     globalSettings.BootOnStartup = check_bootStartup.IsChecked.Value;
                     globalSettings.LogLimit = int.Parse(txt_registrosmax.Text);
+                    globalSettings.SecondsToRefresh = int.Parse(txt_minutos.Text) * 60;
 
                     ApplicationManager.WriteBinaryFileOnAppdata(ApplicationManager.GlobalSettings.ToBytes(globalSettings), "Settings.data");
                     saved = true;
@@ -87,11 +89,25 @@ namespace ControlAcceso.Layouts
                 globalSettings.ClaveDepto = listaDepartamento[cmb_departamento.SelectedIndex].Clave;
                 globalSettings.BootOnStartup = check_bootStartup.IsChecked.Value;
                 globalSettings.LogLimit = int.Parse(txt_registrosmax.Text);
+                globalSettings.SecondsToRefresh = int.Parse(txt_minutos.Text) * 60;
 
                 ApplicationManager.WriteBinaryFileOnAppdata(ApplicationManager.GlobalSettings.ToBytes(globalSettings), "Settings.data");
                 saved = true;
                 this.Close();
             }
+        }
+
+        private void Button_Click_1(object sender, RoutedEventArgs e)
+        {
+            // ADD MINUTES
+            txt_minutos.Text = $"{int.Parse(txt_minutos.Text) + 1}";
+        }
+
+        private void Button_Click_2(object sender, RoutedEventArgs e)
+        {
+            // REMOVE MINUTES
+            if (int.Parse(txt_minutos.Text) > 1)
+                txt_minutos.Text = $"{int.Parse(txt_minutos.Text) - 1}";
         }
 
         private void NumberValidation(object sender, TextCompositionEventArgs e)

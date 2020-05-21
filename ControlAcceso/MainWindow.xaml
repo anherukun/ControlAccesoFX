@@ -70,9 +70,13 @@
         </StackPanel>
 
         <Grid VerticalAlignment="Bottom">
-            <StatusBar VerticalAlignment="Top">
-                <TextBlock Text="Desarrollado por Angel Jimenez Reyes" Margin="4,2"
+            <StatusBar VerticalAlignment="Top" HorizontalContentAlignment="Stretch">
+                <Grid Width="488">
+                    <TextBlock Text="Desarrollado por Angel Jimenez Reyes" Margin="4,2"
                            FontSize="11"/>
+                    <TextBlock x:Name="txt_feedback" Text="Se actualizara en: X segundos" Margin="4,2"
+                           FontSize="11" HorizontalAlignment="Right"/>
+                </Grid>
             </StatusBar>
         </Grid>
     </Grid>

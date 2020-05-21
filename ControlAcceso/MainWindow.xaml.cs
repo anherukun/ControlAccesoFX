@@ -41,13 +41,13 @@ namespace ControlAcceso
         private Departamento departamento;
 
         private CancellationToken cancellationToken = new CancellationToken();
+        private bool isInterrupted;
         private bool isLogRefreshing;
+        private int refreshCounter;
 
         public MainWindow()
         {
             InitializeComponent();
-            
-            //MessageBox.Show(System.Reflection.Assembly.GetEntryAssembly().Location);
 
             if (ApplicationManager.FileExistOnAppdata("Settings.data"))
             {
@@ -114,7 +114,7 @@ namespace ControlAcceso
 
 
             // <GridViewColumn DisplayMemberBinding = "{Binding Horas}" Header = "Horas"/>
-               clockstring = $"{dateTime.Day} {month} [{hour}:{minute}:{second}]";
+            clockstring = $"{dateTime.Day} {month} [{hour}:{minute}:{second}]";
             //Application.Current.Dispatcher.Invoke(new Action(() => { txt_reloj.Text = clockstring; }));
             txt_reloj.Text = clockstring;
         }
@@ -134,6 +134,13 @@ namespace ControlAcceso
         {
             globalSettings = ApplicationManager.GlobalSettings.FromBytes(ApplicationManager.ReadBinaryFileOnAppdata("Settings.data"));
             departamento = Departamento.FromDictionarySingle(new DatabaseManager().FromDatabaseToSingleDictionary($"SELECT * FROM DEPARTAMENTOS WHERE DEPARTAMENTOS.[CLAVE] LIKE {globalSettings.ClaveDepto}"));
+            
+            refreshCounter = globalSettings.SecondsToRefresh;
+
+            DispatcherTimer timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromSeconds(1);
+            timer.Tick += AutoRefreshFeature;
+            timer.Start();
         }
 
         private List<CARegistro> RefreshCARegistro()
@@ -225,7 +232,6 @@ namespace ControlAcceso
                             progressbar.Maximum = registros.Count;
                         }));
 
-
                         isLogRefreshing = false;
                         Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: RefreshLog Finished");
                         return 0;
@@ -236,7 +242,6 @@ namespace ControlAcceso
                     isLogRefreshing = false;
                     Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: Log Refresh Aborted");
                 }
-
             }
 
             progressbar.Value = 0;
@@ -276,13 +281,33 @@ namespace ControlAcceso
             timer.Interval = TimeSpan.FromSeconds(1);
             timer.Tick += UpdateClock;
             timer.Start();
-
+            
             UpdateLayout();
+        }
+
+        private void AutoRefreshFeature(object sender, EventArgs e)
+        {
+            if (refreshCounter == 0)
+            {
+                refreshCounter = globalSettings.SecondsToRefresh;
+                if (!isInterrupted && !isLogRefreshing)
+                {
+                    Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: Autorefresh Started");
+                    RefreshRegLog();
+                }
+                else
+                    Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: Autorefresh Interrupted");
+            }
+            else
+                refreshCounter -= 1;
+
+            txt_feedback.Text = $"Se actualizara en {refreshCounter} segundos...";
         }
 
         private async void Button_Click(object sender, RoutedEventArgs e)
         {
             //NUEVA ENTRADA
+            isInterrupted = true;
             if (isLogRefreshing == true)
                 cancellationToken = new CancellationToken(true);
 
@@ -307,13 +332,14 @@ namespace ControlAcceso
             }
 
             cancellationToken = new CancellationToken(false);
-
+            isInterrupted = false;
             ApplicationManager.InitGB();
         }
 
         private async void Button_Click_1(object sender, RoutedEventArgs e)
         {
             // ABRIR OPCIONESs
+            isInterrupted = true;
             cancellationToken = new CancellationToken(true);
             List<Departamento> ls = await Task.Run(() =>
             {
@@ -332,13 +358,14 @@ namespace ControlAcceso
             }
 
             cancellationToken = new CancellationToken(false);
-
+            isInterrupted = false;
             ApplicationManager.InitGB();
         }
 
         private async void Button_Click_2(object sender, RoutedEventArgs e)
         {
             // GENERAR INFORME
+            isInterrupted = true;
             cancellationToken = new CancellationToken(true);
             DateInput input = new DateInput("Selecciona la fecha para generar el informe");
             input.Owner = this;
@@ -361,11 +388,13 @@ namespace ControlAcceso
                 MessageBox.Show("Se ha cancelado la operacion");
 
             cancellationToken = new CancellationToken(false);
+            isInterrupted = false;
         }
 
         private void Btn_salida_Click(object sender, RoutedEventArgs e)
         {
             // REGISTRAR SALIDA
+            isInterrupted = true;
             if (isLogRefreshing == true)
                 cancellationToken = new CancellationToken(true);
             Thread.Sleep(250);
@@ -382,6 +411,7 @@ namespace ControlAcceso
             btn_salida.IsEnabled = false;
 
             cancellationToken = new CancellationToken(false);
+            isInterrupted = false;
         }
 
         private void lst_registro_SelectionChanged(object sender, SelectionChangedEventArgs e)
