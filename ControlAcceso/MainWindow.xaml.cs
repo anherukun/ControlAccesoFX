@@ -169,7 +169,7 @@ namespace ControlAcceso
             });
 
             Console.WriteLine($"Application: RefreshLog Started");
-            progressbar.IsIndeterminate = false;
+            progressbar.IsIndeterminate = true;
 
             if (registros != null && registros.Count > 0)
             {
@@ -198,11 +198,11 @@ namespace ControlAcceso
                 {
                     Task<int> t = Task.Run(() =>
                     {
-                        Application.Current.Dispatcher.Invoke(new Action(() =>
-                        {
-                            progressbar.Visibility = Visibility.Visible;
-                            progressbar.Maximum = registros.Count;
-                        }));
+                        //Application.Current.Dispatcher.Invoke(new Action(() =>
+                        //{
+                        //    progressbar.Visibility = Visibility.Visible;
+                        //    progressbar.Maximum = registros.Count;
+                        //}));
                         for (int i = 0; i < bindings.Count; i++)
                         {
                             if (cancellationToken.IsCancellationRequested)
@@ -212,10 +212,10 @@ namespace ControlAcceso
                                 throw new TaskCanceledException("Application: Operation Aborted");
                             }
 
-                            Application.Current.Dispatcher.Invoke(new Action(() =>
-                            {
-                                progressbar.Value += 1;
-                            }));
+                            //Application.Current.Dispatcher.Invoke(new Action(() =>
+                            //{
+                            //    progressbar.Value += 1;
+                            //}));
 
                             bindings[i].NombreCompleto = CARegistro.ObtenerNombreCompleto(int.Parse(bindings[i].Ficha));
 
@@ -229,7 +229,7 @@ namespace ControlAcceso
                         Application.Current.Dispatcher.Invoke(new Action(() =>
                         {
                             progressbar.Visibility = Visibility.Hidden;
-                            progressbar.Maximum = registros.Count;
+                            //progressbar.Maximum = registros.Count;
                         }));
 
                         isLogRefreshing = false;
@@ -340,7 +340,11 @@ namespace ControlAcceso
         {
             // ABRIR OPCIONESs
             isInterrupted = true;
-            cancellationToken = new CancellationToken(true);
+            if (isLogRefreshing == true)
+                cancellationToken = new CancellationToken(true);
+
+            Thread.Sleep(250);
+
             List<Departamento> ls = await Task.Run(() =>
             {
                 return Departamento.FromDictionaryListToList(new DatabaseManager().FromDatabaseToDictionary("SELECT * FROM DEPARTAMENTOS ORDER BY DEPARTAMENTOS.[CLAVE] ASC"));
