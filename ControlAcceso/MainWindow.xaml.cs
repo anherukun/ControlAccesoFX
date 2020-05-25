@@ -241,6 +241,7 @@ namespace ControlAcceso
                 {
                     isLogRefreshing = false;
                     Console.WriteLine($"{DateTime.Now.ToLongTimeString()}\tApplication: Log Refresh Aborted");
+                    ApplicationManager.ExceptionHandler(ex);
                 }
             }
 

@@ -43,12 +43,12 @@
                 </Grid>
             </Grid>
 
-            <ListView x:Name="lst_registro" Margin="8" Height="350" SelectionChanged="lst_registro_SelectionChanged">
+            <ListView x:Name="lst_registro" Margin="8" Height="350" SelectionChanged="lst_registro_SelectionChanged" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
                 <ListView.View>
                     <GridView AllowsColumnReorder="False">
                         <GridViewColumn DisplayMemberBinding="{Binding Ficha}" Header="Ficha"/>
                         <GridViewColumn DisplayMemberBinding="{Binding NombreCompleto, IsAsync=True}" Header="Trabajador"
-                                        Width="190"/>
+                                        Width="175"/>
                         <GridViewColumn DisplayMemberBinding="{Binding FechaCorta}" Header="Fecha"/>
                         <GridViewColumn DisplayMemberBinding="{Binding HEntradaCompleta}" Header="Entrada"/>
                         <GridViewColumn DisplayMemberBinding="{Binding HSalidaCompleta}" Header="Salida"/>
